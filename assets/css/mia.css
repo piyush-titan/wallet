@@ -373,12 +373,12 @@ p { margin: 0; }
 .earn svg { color: var(--rose); flex: none; }
 
 /* ---------- Edge case pill (dev) ---------- */
-.dev { position: fixed; right: 20px; bottom: 20px; z-index: 200; font-family: var(--f-ui); }
+.dev { position: fixed; left: 20px; bottom: 20px; z-index: 200; font-family: var(--f-ui); }
 .dev__pill { display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 14px 0 10px; border-radius: var(--r-pill); border: 0; background: #2a2224; color: #fff; font-size: 13px; font-weight: 600; cursor: pointer; box-shadow: 0 8px 24px rgba(0,0,0,.2); max-width: min(360px, calc(100vw - 40px)); }
 .dev__pill > span:nth-child(2) { white-space: nowrap; flex: none; }
 .dev__pill .lbl { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 500; opacity: .8; }
 .dev__dot { width: 22px; height: 22px; border-radius: 50%; background: var(--rose); display: grid; place-items: center; flex: none; }
-.dev__panel { position: absolute; right: 0; bottom: 52px; width: 340px; max-width: calc(100vw - 40px); background: #fff; border: 1px solid var(--line); border-radius: 18px; padding: 16px; box-shadow: 0 16px 48px rgba(0,0,0,.16); display: none; }
+.dev__panel { position: absolute; left: 0; bottom: 52px; width: 340px; max-width: calc(100vw - 40px); background: #fff; border: 1px solid var(--line); border-radius: 18px; padding: 16px; box-shadow: 0 16px 48px rgba(0,0,0,.16); display: none; }
 .dev.is-open .dev__panel { display: block; animation: toast-in .2s var(--ease-out); }
 .dev__panel label { display: block; font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 12px 0 6px; }
 .dev__panel label:first-of-type { margin-top: 4px; }
@@ -433,7 +433,7 @@ p { margin: 0; }
   .dlg { max-width: none; border-radius: 24px 24px 0 0; padding: 12px 20px calc(24px + env(safe-area-inset-bottom)); transform: translateY(100%); transition: transform .3s var(--ease-out); max-height: 92vh; }
   .dlg__grab { display: block; width: 40px; height: 4px; border-radius: 2px; background: var(--line); margin: 0 auto 16px; }
   .dlg__x { top: 14px; }
-  .dev { right: 12px; bottom: 12px; }
+  .dev { left: 12px; bottom: 12px; }
   .dev__pill .lbl { display: none; }
   .paybar { display: flex; }
   .toasts { bottom: 84px; width: calc(100% - 32px); }
