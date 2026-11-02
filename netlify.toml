@@ -3,7 +3,8 @@
   publish = "."
   command = ""
 
+# Always revalidate, so every deploy shows up immediately (prototype is updated often).
 [[headers]]
-  for = "/assets/*"
+  for = "/*"
   [headers.values]
-    Cache-Control = "public, max-age=3600"
+    Cache-Control = "public, max-age=0, must-revalidate"
