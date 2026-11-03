@@ -293,12 +293,23 @@
         ${resp}
         ${def.customer === false ? "" : `<label for="dev-c">Customer</label>${sel("dev-c", cust)}`}
         ${def.scenarios.length > 1 ? `<div class="dev__nav"><button type="button" data-dev-prev>${MIA.icon("arrowLeft", 14)} Prev</button><button type="button" data-dev-next>Next ${MIA.icon("arrowRight", 14)}</button></div>` : ""}
+        <button type="button" class="dev__reset" data-dev-reset>${MIA.icon("refresh", 14)} Reset all scenarios</button>
         <div class="dev__desc" data-dev-desc></div>
         <div class="dev__evt">dataLayer → (no events yet)</div>
       </div>
       <button class="dev__pill" type="button" aria-expanded="false" data-dev-toggle><span class="dev__dot">${MIA.icon("sliders", 14)}</span><span>Edge cases</span><span class="lbl" data-dev-lbl></span></button>
     </div>`;
   }
+
+  /* ---------- Reset: undo claims, cancels and redeems so every scenario starts fresh ---------- */
+  MIA.resetAll = () => {
+    [sessionStorage, localStorage].forEach((st) => {
+      Object.keys(st).filter((k) => k.startsWith("mia-") && k !== "mia-dev-open").forEach((k) => st.removeItem(k));
+    });
+    sessionStorage.setItem("mia-just-reset", "1");
+    // Reload the same page and scenario; in-page changes (cancels, applied wallet) live in memory and are cleared too.
+    location.reload();
+  };
 
   /* ---------- Page boot ---------- */
   MIA.page = (def) => {
@@ -364,6 +375,10 @@
       syncUrl();
       ctx.render();
       def.pageView && MIA.track(def.pageView);
+      if (sessionStorage.getItem("mia-just-reset")) {
+        sessionStorage.removeItem("mia-just-reset");
+        setTimeout(() => MIA.toast("All scenarios reset"), 300);
+      }
 
       document.addEventListener("keydown", (e) => {
         if (e.target.closest("input, select, textarea") || document.querySelector(".ov") || e.metaKey || e.ctrlKey || e.altKey) return;
@@ -420,6 +435,7 @@
     };
     dev.querySelector("[data-dev-prev]")?.addEventListener("click", () => step(-1));
     dev.querySelector("[data-dev-next]")?.addEventListener("click", () => step(1));
+    dev.querySelector("[data-dev-reset]").addEventListener("click", () => MIA.resetAll());
   }
 
   /* ---------- Small shared render helpers ---------- */

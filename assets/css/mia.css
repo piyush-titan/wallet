@@ -508,3 +508,6 @@ body:has(.ov) .dev { display: none; }
   .claim-ctx { flex-wrap: wrap; }
   .claim-ctx__a { margin-left: 0; }
 }
+
+.dev__reset { width: 100%; height: 36px; margin-top: 8px; border-radius: 10px; border: 1px dashed #f1c2cb; background: var(--rose-50); color: var(--rose); font-size: 13px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+.dev__reset:hover { background: #ffe9ed; }
