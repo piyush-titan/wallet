@@ -4,20 +4,65 @@
   const IMG = "assets/img/";
   const fmt = (n) => "₹" + new Intl.NumberFormat("en-IN").format(n);
 
-  const SILVER = { name: "Triple Glow Silver Stud Earrings", cat: "Silver Jewellery", crumb: "Earrings", price: 2099, kind: "silver", metal: ["925", "Karat", "Silver"], extra: [["Gemstone", "24 · Synthetic white Pearl, White Cubic Zirconia"]], imgs: ["pdp-1.jpg", "pdp-2.jpg", "pdp-3.jpg", "pdp-4.jpg"], ribbon: "BEST SELLER", ucp: true, returns: "7-Day Returns" };
-  const GOLD = { name: "Infinite Shimmer 14KT Gold & Diamond Ring", cat: "Diamond Jewellery", crumb: "Rings", price: 7200, kind: "ring", metal: ["14", "Karat", "Yellow Gold", "gold"], extra: [["Diamonds", "Round · 0.046 Ct"], ["Occasion", "Everydays/Workwear"], ["Gross Weight", "2.410g"]], imgs: ["ring.jpg", "studs.jpg", "pendant.jpg"], ribbon: "NEW ARRIVAL", returns: "30-Day Returns" };
+  // Arch Sparkle Diamond Ring, copied from the stg PDP (price breakup, sizes and weights as on the live page).
+  const DIAMOND = {
+    name: "Arch Sparkle Diamond Ring", cat: "Diamond Jewellery", crumb: "Rings", price: 23168, kind: "ring",
+    metal: ["14", "Karat", "Yellow Gold", "gold"], net: "1.287gm",
+    extra: [["Diamonds", "Round · 0.065 Ct"], ["Occasion", "Classic"], ["Gross Weight", "1.3g"]],
+    imgs: ["dr-1.jpg", "dr-2.jpg", "dr-3.jpg", "dr-4.jpg"], ribbon: "", returns: "30-Day Returns",
+    pbu: { gold: ["10524.15", "1.287g", "8177.27"], diamond: ["7563.1", "0.065 ct · 0.013 g"], making: "4406.00", sub: "22493.25", gst: "674.8", grand: "23168" },
+    sizes: [["16.40 MM"], ["16.80 MM", "disabled"], ["17.20 MM", "active"]],
+    weights: [["1.063 g"], ["1.153 g"], ["1.203 g"], ["1.225 g"], ["1.3 g", "active"], ["1.359 g"]],
+  };
+  // Same ring with the festive "30% off on making charges" offer (Oracle discount): never earns cashback, can't use the wallet.
+  const DIAMOND_OFFER = {
+    ...DIAMOND, price: 23168, sale: 21807, offer: "30% off on making charges", ribbon: "30% OFF ON MC",
+    pbu: { ...DIAMOND.pbu, mcOff: "1321.80", sub: "21171.45", gst: "635.14", grand: "21807" },
+  };
+  const COIN = {
+    name: "0.5 Gram 24 Karat Mango Leaf Gold Coin", cat: "Gold Coins", crumb: "Coins", price: 7813, kind: "coin",
+    metal: ["24", "Karat", "Yellow Gold", "gold"], net: "0.5gm", extra: [["Purity", "999.9"], ["Gross Weight", "0.5g"]],
+    imgs: ["coin.jpg"], ribbon: "", returns: "No Returns",
+    pbu: { gold: ["7585.44", "0.5g", "15170.87"], making: "0.00", sub: "7585.44", gst: "227.56", grand: "7813" },
+  };
 
   // Estimate comes from GET /cashback/estimate?productId=&qty=1 (single unit). The UI never computes it.
   const SC = {
-    silver: { p: SILVER, estimate: 105 },
-    gold: { p: GOLD, estimate: 360 },
-    walletZero: { p: SILVER, estimate: 105, wallet: { available: 0, onHold: 0 } },
-    holdOnly: { p: GOLD, estimate: 360, wallet: { available: 0, onHold: 1910 } },
-    discounted: { p: { ...GOLD, name: "Charming Heart 14KT Gold Pendant", price: 6400, sale: 5120, offer: "20% off on making charges", imgs: ["pendant.jpg", "ring.jpg"], ribbon: "30% OFF ON MC" }, estimate: 0, reason: "offer" },
-    coin: { p: { ...GOLD, name: "0.5 Gram 24 Karat Mango Leaf Gold Coin", cat: "Gold Coins", crumb: "Coins", price: 7813, kind: "coin", metal: ["24", "Karat", "Yellow Gold", "gold"], extra: [["Weight", "0.5 g"], ["Purity", "999.9"]], imgs: ["coin.jpg"], ribbon: "", returns: "No Returns" }, estimate: 0, reason: "coin" },
-    zero: { p: SILVER, estimate: 0 },
-    loading: { p: SILVER, estimate: 105, loading: true },
+    diamond: { p: DIAMOND, estimate: 1158 },
+    walletZero: { p: DIAMOND, estimate: 1158, wallet: { available: 0, onHold: 0 } },
+    holdOnly: { p: DIAMOND, estimate: 1158, wallet: { available: 0, onHold: 1910 } },
+    offerMC: { p: DIAMOND_OFFER, estimate: 0, reason: "offer" },
+    coin: { p: COIN, estimate: 0, reason: "coin" },
+    zero: { p: DIAMOND, estimate: 0 },
+    loading: { p: DIAMOND, estimate: 1158, loading: true },
   };
+
+  function breakup(p) {
+    const b = p.pbu;
+    if (!b) return "";
+    return `<div class="p-pbu" data-pbu>
+      <button class="p-pbu__btn" type="button" aria-expanded="false" data-pbu-btn><span>${icon("receipt", 14)}Price Breakup</span><i aria-hidden="true"></i></button>
+      <div class="p-pbu__body">
+        <div class="p-pbu__sec"><div class="p-pbu__hd"><span class="p-pbu__h gold">Gold Value</span><span class="p-pbu__v">₹ ${b.gold[0]}</span></div><div class="p-pbu__det">Weight <b>${b.gold[1]}</b> Rate <b>₹ ${b.gold[2]}/g</b></div></div>
+        ${b.diamond ? `<div class="p-pbu__sec"><div class="p-pbu__hd"><span class="p-pbu__h diamond">Diamond Value</span><span class="p-pbu__v">₹ ${b.diamond[0]}</span></div><div class="p-pbu__det">Weight <b>${b.diamond[1]}</b></div></div>` : ""}
+        <div class="p-pbu__rows">
+          <div class="p-pbu__row"><span>Making Charges</span><b>₹ ${b.making}</b></div>
+          ${b.mcOff ? `<div class="p-pbu__row"><span>Making Charges Discount (30%)</span><b class="disc">- ₹ ${b.mcOff}</b></div>` : ""}
+          <div class="p-pbu__row bold"><span>Sub Total</span><b>₹ ${b.sub}</b></div>
+          <div class="p-pbu__row"><span>GST</span><b>₹ ${b.gst}</b></div>
+        </div>
+        <div class="p-pbu__gt"><span>Grand Total</span><b>₹ ${b.grand}</b></div>
+      </div></div>`;
+  }
+
+  function variations(p) {
+    if (!p.sizes) return "";
+    const chips = (list, key) => `<ul>${list.map(([v, st]) => `<li><button type="button" data-var="${key}" class="${st === "active" ? "active" : ""}" ${st === "disabled" ? "disabled" : ""} aria-pressed="${st === "active"}">${v}</button></li>`).join("")}</ul>`;
+    return `<div class="p-var">
+      <div class="p-var__item"><div class="p-var__hd"><span class="p-var__t">${icon("ring", 18)}Choose Size</span><button class="p-var__guide" type="button">Size Guide</button></div>${chips(p.sizes, "size")}</div>
+      <div class="p-var__item"><div class="p-var__hd"><span class="p-var__t">${icon("sliders", 18)}Choose Gross Weight</span></div>${chips(p.weights, "weight")}</div>
+    </div>`;
+  }
 
   function cashbackCard(c, ctx) {
     if (!ctx.eligible) return "";
@@ -32,7 +77,7 @@
     if (c.loading)
       return `<div class="p-cb" aria-busy="true"><div class="p-cb__row"><div class="skel" style="width:36px;height:36px;border-radius:50%"></div><div style="flex:1"><div class="skel" style="height:13px;width:62%"></div><div class="skel" style="height:10px;width:85%;margin-top:6px"></div></div></div></div>`;
     if (!c.estimate) {
-      if (!walletRow || !walletUsable) return c.reason ? `<div class="p-cb"><div class="p-cb__no">${icon("info", 16)}<span>${c.reason === "coin" ? "Coins don’t earn cashback, and Mia Wallet can’t be used on them." : "Products with an offer don’t earn cashback, and Mia Wallet can’t be used on them."}</span></div></div>` : "";
+      if (!walletRow || !walletUsable) return c.reason ? `<div class="p-cb"><div class="p-cb__no">${icon("info", 16)}<span>${c.reason === "coin" ? "Coins don’t earn cashback, and Mia Wallet can’t be used on them." : "This product has an offer on making charges, so it doesn’t earn cashback and Mia Wallet can’t be used on it."}</span></div></div>` : "";
       return `<div class="p-cb">${walletRow.replace("p-cb__wallet", "p-cb__wallet\" style=\"border-top:0")}</div>`;
     }
     return `<div class="p-cb" aria-label="Cashback">
@@ -47,11 +92,10 @@
     layout: "raw",
     crumbs: null,
     scenarios: [
-      { id: "silver", group: "Earns cashback", label: "Silver earrings (as on stg)", desc: "Replica of the live PDP for Triple Glow Silver Stud Earrings. New: ‘Earn up to ₹105 cashback’ under the price, the customer’s Mia Wallet balance, and a cashback chip in the sticky bar. The amount comes from GET /cashback/estimate (one unit) and is always ‘up to’." },
-      { id: "gold", group: "Earns cashback", label: "Gold & diamond ring", desc: "Same layout with gold metal styling and more specs." },
+      { id: "diamond", group: "Earns cashback", label: "Diamond ring (as on stg)", desc: "Replica of the live PDP for Arch Sparkle Diamond Ring (₹23,168): price breakup, Choose Size / Gross Weight chips, sticky bar with size pill. New: ‘Earn up to ₹1,158 cashback’ under the price, the customer’s Mia Wallet balance, and a cashback chip in the sticky bar. Amount comes from GET /cashback/estimate (one unit) and is always ‘up to’." },
       { id: "walletZero", group: "Wallet balance", label: "₹0 wallet, nothing on hold", desc: "Cashback line only; no wallet row." },
-      { id: "holdOnly", group: "Wallet balance", label: "₹0 available, ₹1,910 on hold", desc: "Wallet row nudges the customer to claim cashback on hold so they can use it on this product." },
-      { id: "discounted", group: "No cashback", label: "Product with an offer", desc: "Discounted products never earn and can’t use the wallet: a short explanation replaces the cashback line, and there’s no chip in the sticky bar." },
+      { id: "holdOnly", group: "Wallet balance", label: "₹0 available, ₹1,910 on hold", desc: "Wallet row nudges the customer to claim cashback on hold so they can use it on this ring." },
+      { id: "offerMC", group: "No cashback", label: "Ring with 30% off on making charges", desc: "Festive making-charge offer (Oracle discount): price shows the strike-through and the discount in the breakup. Discounted products never earn and can’t use the wallet, so a short explanation replaces the cashback line and there’s no chip." },
       { id: "coin", group: "No cashback", label: "Gold coin", desc: "Coins never earn and can’t use the wallet." },
       { id: "zero", group: "No cashback", label: "Estimate is ₹0", desc: "API returns 0: cashback line hidden, wallet row still shown." },
       { id: "loading", group: "System", label: "Estimate loading", desc: "Small skeleton, never ‘₹0’." },
@@ -66,7 +110,7 @@
         <div class="p-grid">
           <div class="p-gal">
             <div class="p-gal__box">
-              <div class="p-thumbs">${p.imgs.map((im, i) => `<button class="p-thumb ${i ? "" : "active"}" data-img="${im}" aria-label="Image ${i + 1}"><img src="${IMG}${im}" alt=""></button>`).join("")}${p.kind === "silver" ? `<button class="p-thumb" aria-label="Video"><span class="play"></span></button>` : ""}</div>
+              <div class="p-thumbs">${p.imgs.map((im, i) => `<button class="p-thumb ${i ? "" : "active"}" data-img="${im}" aria-label="Image ${i + 1}"><img src="${IMG}${im}" alt=""></button>`).join("")}${p.kind === "ring" ? `<button class="p-thumb" aria-label="Video"><span class="play"></span></button>` : ""}</div>
               <div class="p-main"><img src="${IMG}${p.imgs[0]}" alt="${esc(p.name)}" data-main>${p.ribbon ? `<span class="p-ribbon">${esc(p.ribbon)} ✦</span>` : ""}<span class="p-similar">${icon("search", 12)}Show Similar</span></div>
             </div>
             <div class="p-trust"><div><img src="${IMG}cert-bis.svg" alt="BIS hallmark"></div><div><img src="${IMG}tata.svg" alt="A Tata product"></div><div><img src="${IMG}cert-1yr.svg" alt="1 year warranty"></div></div>
@@ -78,13 +122,15 @@
             </div>
             <section class="p-specs">
               <h3>Metal</h3>
-              <div class="p-metal"><b class="${p.metal[3] || ""}">${p.metal[0]} ${p.metal[1]}</b><span>${p.metal[2]}</span></div>
+              <div class="p-metal"><b class="${p.metal[3] || ""}">${p.metal[0]} ${p.metal[1]}</b><span>${p.metal[2]}</span>${p.net ? `<small style="font:400 11px 'Albert Sans',sans-serif;color:#8a7a80;margin-left:4px">· Net <b style="background:none;-webkit-text-fill-color:#43323a;color:#43323a;font:600 12px 'Albert Sans',sans-serif">${p.net}</b></small>` : ""}</div>
               <div class="p-extra">${p.extra.map((x) => `<div><small>${x[0]}</small><span>${esc(x[1])}</span></div>`).join("")}</div>
               <button class="p-more">View Full Product Details <span aria-hidden="true">+</span></button>
             </section>
             <section class="p-buy">
-              <div class="p-price"><div class="v">${fmt(p.sale || p.price)}${p.sale ? `<s>${fmt(p.price)}</s><span class="off">${esc(p.offer)}</span>` : ""}</div>${p.ucp ? `<div class="note">UCP Products do not have Price Breakup.</div>` : ""}</div>
+              <div class="p-price"><div class="v">${fmt(p.sale || p.price)}${p.sale ? `<s>${fmt(p.price)}</s><span class="off">${esc(p.offer)}</span>` : ""}</div></div>
+              ${breakup(p)}
               ${cashbackCard(c, ctx)}
+              ${variations(p)}
               <div class="p-coupons__hd"><span><img src="${IMG}pdp-offer.svg" alt=""></span><b>Available coupons</b></div>
               <div class="p-coupons__stage">
                 <button class="p-arrow l" aria-label="Previous coupon">${icon("chevronRight", 12, 'style="transform:rotate(180deg)"')}</button>
@@ -111,12 +157,26 @@
       </div>
       <div class="p-sticky" role="region" aria-label="Buy">
         <div class="p-sticky__l"><div class="p-sticky__n">${esc(p.name)}</div><div class="p-sticky__p">${fmt(p.sale || p.price)}${showCb ? `<span class="p-sticky__cb">${icon("sparkle", 11)}Earn <span class="long">up to</span> ${rs(c.estimate)} cashback</span>` : ""}</div></div>
+        ${p.sizes ? `<span class="p-sticky__var" data-sticky-var>${p.sizes.find((x) => x[1] === "active")[0]}<i></i>${p.weights.find((x) => x[1] === "active")[0]}</span>` : ""}
         <div class="p-sticky__btns"><button class="p-sticky__buy">Buy Now</button><button class="p-sticky__add" onclick="location.href='cart.html'">${icon("bag", 16)} Add to Bag</button></div>
       </div>`;
     },
     mount(root) {
       const app = document.getElementById("app");
       app.querySelectorAll("[data-how]").forEach((b) => b.addEventListener("click", M.openHowItWorks));
+      app.querySelector("[data-pbu-btn]")?.addEventListener("click", (e) => {
+        const box = app.querySelector("[data-pbu]");
+        box.classList.toggle("open");
+        e.currentTarget.setAttribute("aria-expanded", String(box.classList.contains("open")));
+      });
+      app.querySelectorAll("[data-var]").forEach((b) =>
+        b.addEventListener("click", () => {
+          app.querySelectorAll(`[data-var="${b.dataset.var}"]`).forEach((x) => { x.classList.toggle("active", x === b); x.setAttribute("aria-pressed", String(x === b)); });
+          const pick = (k) => app.querySelector(`[data-var="${k}"].active`)?.textContent || "";
+          const pill = app.querySelector("[data-sticky-var]");
+          if (pill) pill.innerHTML = `${pick("size")}<i></i>${pick("weight")}`;
+        })
+      );
       app.querySelectorAll("[data-img]").forEach((b) =>
         b.addEventListener("click", () => {
           app.querySelector("[data-main]").src = IMG + b.dataset.img;
