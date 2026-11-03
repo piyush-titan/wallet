@@ -31,7 +31,7 @@ Each state shows a short description, and the last `dataLayer` event appears in 
 | `order-details.html` | 6.7, 6.8 | Cashback block for every state, claim modal, wallet lines, refund lines |
 | `orders.html` | 6.6 | Cashback status line per order; Claim now opens order details with the modal |
 | `return.html` | 6.9 | Live refund summary, whole-order lock, closed windows, requested screen |
-| `cancel.html` | 6.9 | Wallet return, cashback cancellation, partial cancel |
+| `order-details.html?s=cancelOrder` | 6.9 | Replica of the live Cancel Order / Cancel Item modals (reason dropdown, validation, toasts) plus wallet and cashback notes. `cancel.html` redirects here |
 | `cart.html` | 6.3, 7 | Wallet section (10 states), redeem modal, info sheet, tags, coupon conflict, auto-removal |
 | `checkout.html` | 6.4 | Hold responses, address removal, gift card / Tata Neu, ₹0 payable, payment failed/pending |
 | `confirmation.html` | 6.5 | Cashback banner |

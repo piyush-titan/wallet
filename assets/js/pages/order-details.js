@@ -4,7 +4,7 @@
   const IMG = "assets/img/";
   const dmy = (iso) => iso.split("-").reverse().join("/");
   const sp = (n) => "₹ " + n; // site renders breakdown figures as "₹ 73827"
-  let o = null, key = "", focusClaim = false, scrolled = false;
+  let o = null, key = "", focusClaim = false, scrolled = false, autoCancel = null;
 
   const imgFor = (it) => it.img || ({ coin: "coin.jpg", silver: "silver.jpg", earring: "studs.jpg" }[it.kind] || (/pendant|necklace/i.test(it.name) ? "pendant.jpg" : "ring.jpg"));
 
@@ -30,6 +30,7 @@
       case "ON_HOLD_PENDING_DELIVERY":
         title = M.t("res.cashback.block.onHold", { amount: amt });
         body = "It’ll be added to your Mia Wallet after the return window closes. You can claim it early once your order is delivered.";
+        if (cb.originalAmount && cb.originalAmount !== cb.amount) body += ` Updated from ${rs(cb.originalAmount)} after you cancelled an item.`;
         extra = tl(1); acts = how; break;
       case "ON_HOLD":
         title = M.t("res.cashback.block.onHold", { amount: amt });
@@ -65,6 +66,9 @@
     const cb = o.cashback;
     if ((o.returned || []).includes(it.lineId)) return `<span class="badge badge--mute">${icon("undo", 13)}Returned</span>`;
     if ((o.returning || []).includes(it.lineId)) return `<span class="badge badge--warn">${icon("pause", 13)}Return requested</span>`;
+    if ((o.cancelled || []).includes(it.lineId)) return `<span class="s-cancelled">Cancelled</span>`;
+    // Live site: before dispatch each item has "Cancel Item" next to "Rate and Review".
+    if (o.status === "PROCESSING" && !o.wholeOrderOnly) return `<button class="s-btn-light" data-cancel-item="${it.lineId}">Cancel Item</button><button class="s-btn-soft">Rate and Review</button>`;
     if (o.status !== "DELIVERED") return "";
     const rate = `<button class="s-btn-soft">Rate and Review</button>`;
     if (cb.claimedEarly || o.wholeOrderOnly) return rate;
@@ -91,7 +95,6 @@
         .join("")}
       ${cb.claimedEarly ? `<div class="s-prod__note">${icon("lock", 18)}<span>${M.t("res.return.closedByClaim", { date: date(cb.claimedOn) })}</span></div>` : ""}
       ${o.status === "DELIVERED" && o.wholeOrderOnly && !cb.claimedEarly ? `<div class="s-prod__note">${icon("info", 18)}<span>${M.t("res.return.wholeOrder", { offer: esc(o.offerName || "an offer") })}</span></div><div class="s-prod__ft"><a class="s-btn-soft" href="return.html?s=wholeOrder">Return whole order</a></div>` : ""}
-      ${o.status === "PROCESSING" ? `<div class="s-prod__ft"><a class="s-btn-soft" href="cancel.html">Cancel Order</a></div>` : ""}
     </section>`;
   }
 
@@ -144,17 +147,23 @@
     darkCrumb: true,
     crumbs: () => [["Home", "index.html"], ["My Orders", "orders.html"], ["#OrderID: " + (o ? o.orderNo : "")]],
     responses: {
-      label: "Claim response (server)",
+      label: "Server response (claim / cancel)",
       options: [
         { id: "ok", label: "200 · Claimed" },
         { id: "network", label: "Network / 5xx error" },
         { id: "RETURN_IN_PROGRESS", label: "409 · Return in progress (stale page)" },
         { id: "WINDOW_CLOSED", label: "409 · Window closed meanwhile" },
         { id: "SUPPRESSED", label: "409 · Suppressed" },
+        { id: "cancelError", label: "Cancel → server error toast" },
       ],
     },
     scenarios: [
-      { id: "pending", group: "On hold", label: "Placed, not delivered", desc: "ON_HOLD_PENDING_DELIVERY. No Claim before delivery. Cancel available. ₹800 wallet used shows in both breakdowns." },
+      { id: "cancelOrder", group: "Cancel (replica of live site)", label: "Cancel Order modal", desc: "Exact copy of the live Cancel Order modal. Try ‘Yes, Cancel’ with no reason (‘Please choose a reason to cancel’), then ‘My Reason is not listed’ with an empty box (‘Please add your reason’). Notes show what happens to the ₹800 wallet money and ₹1,000 cashback. On success: green toast, order becomes Cancelled, cashback voided, ₹800 back to Mia Wallet." },
+      { id: "cancelItem", group: "Cancel (replica of live site)", label: "Cancel Item modal (2-item order)", desc: "Exact copy of the live Cancel Item modal with the product preview. Cancelling one item cancels its share of wallet money and updates the cashback on hold for the rest of the order." },
+      { id: "cancelSingle", group: "Cancel (replica of live site)", label: "Single-item order", desc: "Cancel Item on the only item cancels the whole order." },
+      { id: "cancelNoWallet", group: "Cancel (replica of live site)", label: "No wallet money used", desc: "Only the cashback and NeuCoins notes." },
+      { id: "cancelNoCashback", group: "Cancel (replica of live site)", label: "No wallet, no cashback (like live)", desc: "Coin order: identical to the live modal, only the NeuCoins note." },
+      { id: "pending", group: "On hold", label: "Placed, not delivered", desc: "ON_HOLD_PENDING_DELIVERY. No Claim before delivery. Cancel Item / Cancel Order available. ₹800 wallet used shows in both breakdowns." },
       { id: "shipped", group: "On hold", label: "Shipped (no cancel)", desc: "Still ON_HOLD_PENDING_DELIVERY, already dispatched so no Cancel." },
       { id: "claimable", group: "On hold", label: "Delivered · Claim available", desc: "ON_HOLD + claim.available. Tap ‘Claim ₹1,000 now’. Try each server response above. Success hides every Return button and updates the header balance." },
       { id: "suppressed", group: "On hold", label: "High value · claim suppressed", desc: "CONFIG claimSuppressAboveOrderValue on. On hold with no Claim CTA." },
@@ -178,7 +187,8 @@
     render(ctx) {
       const k = ctx.s + "|" + ctx.cust;
       if (k !== key) {
-        key = k; o = M.ORDERS[ctx.s](); scrolled = false;
+        key = k; o = M.ORDERS[{ cancelOrder: "pending", cancelItem: "pending" }[ctx.s] || ctx.s](); scrolled = false;
+        autoCancel = ctx.q.get("cancel") || { cancelOrder: "order", cancelItem: "item", cancelSingle: "order", cancelNoWallet: "order", cancelNoCashback: "order" }[ctx.s] || null;
         focusClaim = ctx.q.get("claim") === "1";
         // A claim already made for this order in this tab (e.g. before going back to the bag) stays claimed.
         const prior = M.claims.get(o.orderNo);
@@ -194,6 +204,7 @@
           <div class="s-od__col stack">
             <section class="s-oid"><div class="s-oid__in"><div><div class="s-oid__id">#Order ID <i></i> ${esc(o.orderNo)}</div><div class="s-oid__date">Order Date: ${dmy(o.placedOn)}</div></div><button class="s-copy" data-copy><img src="${IMG}copy.png" alt="">Copy</button></div></section>
             ${productCard()}
+            ${o.status === "PROCESSING" ? `<button class="s-cancel-order" data-cancel-order>Cancel Order</button>` : ""}
             <section class="s-card s-ship"><h4>Shipping Details</h4><div class="s-ship__row"><div class="s-ship__av">t</div><div><div class="s-ship__nm">test test</div><p class="addr">Test, Bengaluru Urban, India - 560111</p><p>kkkkk@gmail.com</p><p>+91 9521005220</p></div></div></section>
           </div>
           <div class="s-od__col stack">${show ? cashbackCard(o.cashback) : ""}${breakdown(show)}${support()}</div>
@@ -225,6 +236,36 @@
           },
         })
       );
+      const openCancel = (mode, lineId) => {
+        const live = o.items.filter((x) => !(o.cancelled || []).includes(x.lineId));
+        const item = mode === "item" ? o.items.find((x) => x.lineId === lineId) : null;
+        const lines = mode === "item" ? [lineId] : live.map((x) => x.lineId);
+        // Quote is worked out against what's still active on the order (mock server; the UI only displays it).
+        const active = { ...o, items: live, subTotal: live.reduce((t, x) => t + x.price, 0), walletUsed: o.walletUsed - (o.walletRefund ? o.walletRefund.amount : 0) };
+        M.openSiteCancel({
+          mode, order: o, item, quote: M.mockQuote(active, lines), showWallet: ctx.eligible, resp: ctx.resp,
+          onDone: () => {
+            const q = M.mockQuote(active, lines);
+            const wal = q.refundTo.find((r) => r.method === "WALLET");
+            const refunded = (o.walletRefund ? o.walletRefund.amount : 0) + (wal ? wal.amount : 0);
+            o.cancelled = [...(o.cancelled || []), ...lines];
+            if (o.cancelled.length >= o.items.length) {
+              o.status = "CANCELLED";
+              o.cashback = { ...o.cashback, state: o.cashback.state === "NONE" ? "NONE" : "VOIDED", voidReason: "cancelled" };
+            } else if (q.cashback) {
+              o.cashback = { ...o.cashback, originalAmount: o.cashback.originalAmount || o.cashback.amount, amount: q.cashback.afterReturn };
+            }
+            if (refunded) o.walletRefund = { amount: refunded, done: true, expiresOn: M.addDays(M.TODAY_ISO, 41) };
+            setTimeout(ctx.rerender, 60);
+          },
+        });
+      };
+      app.querySelector("[data-cancel-order]")?.addEventListener("click", () => openCancel("order"));
+      app.querySelectorAll("[data-cancel-item]").forEach((b) => b.addEventListener("click", () => openCancel("item", b.dataset.cancelItem)));
+      if (autoCancel && o.status === "PROCESSING") {
+        const mode = autoCancel; autoCancel = null;
+        setTimeout(() => openCancel(mode === "item" ? "item" : "order", o.items[0].lineId), 250);
+      }
       if (focusClaim && !scrolled && claimBtn) {
         scrolled = true;
         setTimeout(() => app.querySelector("#cashback")?.scrollIntoView({ behavior: "smooth", block: "center" }), 120);

@@ -26,7 +26,7 @@
     { id: "orders", file: "orders.html", title: "My Orders" },
     { id: "order", file: "order-details.html", title: "Order details + Claim" },
     { id: "return", file: "return.html", title: "Return flow" },
-    { id: "cancel", file: "cancel.html", title: "Cancel flow" },
+    { id: "cancel", file: "order-details.html?s=cancelOrder", title: "Cancel flow (order details modal)" },
     { id: "cart", file: "cart.html", title: "Cart" },
     { id: "checkout", file: "checkout.html", title: "Checkout" },
     { id: "confirm", file: "confirmation.html", title: "Order confirmation" },
@@ -406,8 +406,8 @@
     setOpen(wasOpen);
     toggle.addEventListener("click", () => setOpen(!dev.classList.contains("is-open")));
     dev.querySelector("#dev-p").addEventListener("change", (e) => {
-      const keep = ctx.cust !== "ok" ? "?c=" + ctx.cust : "";
-      location.href = e.target.value + keep;
+      const v = e.target.value;
+      location.href = v + (ctx.cust !== "ok" ? (v.includes("?") ? "&" : "?") + "c=" + ctx.cust : "");
     });
     dev.querySelector("#dev-s")?.addEventListener("change", (e) => { MIA.claims && MIA.claims.reset(); ctx.go(e.target.value); });
     dev.querySelector("#dev-c")?.addEventListener("change", (e) => { ctx.cust = e.target.value; ctx.go(ctx.s); });

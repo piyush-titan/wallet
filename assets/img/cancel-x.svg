@@ -1,0 +1,16 @@
+<svg width="48" height="49" viewBox="0 0 48 49" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Group 1171279413">
+<g id="Rectangle 34625479" filter="url(#filter0_b_1_424157)">
+<rect y="0.5" width="48" height="48" rx="24" fill="white" fill-opacity="0.3"/>
+</g>
+<path id="Vector (Stroke)" fill-rule="evenodd" clip-rule="evenodd" d="M18.264 18.764C18.616 18.412 19.1867 18.412 19.5387 18.764L24.0001 23.2253L28.4615 18.764C28.8135 18.412 29.3842 18.412 29.7361 18.764C30.0881 19.116 30.0881 19.6867 29.7361 20.0387L25.2748 24.5L29.7361 28.9613C30.0881 29.3133 30.0881 29.884 29.7361 30.236C29.3842 30.588 28.8135 30.588 28.4615 30.236L24.0001 25.7747L19.5387 30.236C19.1867 30.588 18.616 30.588 18.264 30.236C17.912 29.884 17.912 29.3133 18.264 28.9613L22.7254 24.5L18.264 20.0387C17.912 19.6867 17.912 19.116 18.264 18.764Z" fill="white"/>
+</g>
+<defs>
+<filter id="filter0_b_1_424157" x="-24" y="-23.5" width="96" height="96" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+<feGaussianBlur in="BackgroundImageFix" stdDeviation="12"/>
+<feComposite in2="SourceAlpha" operator="in" result="effect1_backgroundBlur_1_424157"/>
+<feBlend mode="normal" in="SourceGraphic" in2="effect1_backgroundBlur_1_424157" result="shape"/>
+</filter>
+</defs>
+</svg>

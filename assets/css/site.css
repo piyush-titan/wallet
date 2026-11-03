@@ -370,3 +370,76 @@ body.site.has-foot .dev { bottom: 108px; }
 /* New pages (wallet, return, cancel, checkout) adopt the site's card treatment */
 body.site .card, body.site .ocard, body.site .rs { border: 0; box-shadow: var(--s-shadow); }
 body.site .card .rs { box-shadow: none; border: 1px solid #eee; }
+
+/* ---------- Cancel Order / Cancel Item modals (replica of the live #cancelordermodal) ---------- */
+.sc-ov { position: fixed; inset: 0; z-index: 1050; background: rgba(0, 0, 0, .7); display: flex; align-items: center; justify-content: center; padding: 28px 8px; overflow-y: auto; opacity: 0; transition: opacity .15s linear; }
+.sc-ov.is-in { opacity: 1; }
+.sc-dialog { position: relative; width: 390px; max-width: 100%; margin: auto; transform: translateY(-25%); transition: transform .3s ease-out; }
+.sc-ov.is-in .sc-dialog { transform: none; }
+.sc-close { position: absolute; top: 1px; right: -65px; width: 48px; height: 48px; padding: 0; border: 0; background: none; cursor: pointer; }
+.sc-close img { width: 48px; height: 48px; display: block; }
+.sc-close__m { display: none !important; }
+.sc-box { background: #f8f8f8; border: 1px solid rgba(0, 0, 0, .2); border-radius: 20px; box-shadow: 0 16px 32px rgba(23, 26, 33, .16); padding: 20px; font-family: "Nunito Sans", sans-serif; color: #222; }
+.sc-title { margin: 0; font: 600 20px/28px Fraunces, serif; color: #3c3c3c; }
+.sc-sure { margin: 4px 0 16px; font: 400 14px/21px "Albert Sans", sans-serif; color: #5e5e5e; }
+.sc-prod { display: flex; gap: 16px; padding: 44px 16px 33px; }
+.sc-prod img { width: 92px; height: 92px; border-radius: 10.128px; background: #d9d9d9; object-fit: cover; flex: none; margin-top: 2px; }
+.sc-prod__p { margin: 0 0 4px; font: 700 20px/28px Fraunces, serif; color: #5e5e5e; }
+.sc-prod__n { margin: 0 0 16px; font: 400 16px/24px "Nunito Sans", sans-serif; color: #222; }
+.sc-form { position: relative; margin-top: 44px; }
+.sc-prod + .sc-form { margin-top: 0; }
+.sc-dd { position: relative; height: 47px; border: 1px solid #d3d3d3; border-radius: 4px; padding: 11px 36px 10px 8px; cursor: pointer; background: transparent; }
+.sc-dd:focus-visible { outline: 2px solid #d14a61; outline-offset: 1px; }
+.sc-dd__v { display: block; padding-top: 5px; font: 700 14px/19px "Nunito Sans", sans-serif; color: #222; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sc-dd__a { position: absolute; right: 14px; top: 50%; width: 9px; height: 9px; margin-top: -7px; border-right: 2px solid #d14a61; border-bottom: 2px solid #d14a61; transform: rotate(45deg); transition: transform .2s; }
+.sc-dd.is-open .sc-dd__a { transform: rotate(225deg); margin-top: -2px; }
+.sc-opts { position: absolute; left: 0; top: 49px; z-index: 5; width: 388px; max-width: calc(100vw - 32px); max-height: 192px; overflow-y: auto; margin: 0; padding: 0 0 0 6px; list-style: none; background: #fff; border-radius: 5px; box-shadow: 0 0 15px rgba(131, 39, 41, .2); }
+.sc-opts::-webkit-scrollbar { width: 10px; }
+.sc-opts::-webkit-scrollbar-thumb { background: #d14a61; border-radius: 10px; }
+.sc-opts::-webkit-scrollbar-track { background: #fff; }
+.sc-opts li { padding: 10px 0 11px; font: 600 14px/28px "Nunito Sans", sans-serif; color: #222; cursor: pointer; }
+.sc-opts li:hover, .sc-opts li:focus { background: #fff4f6; outline: none; }
+.sc-err { margin: 8px 0 0; font: 400 13px/20px "Nunito Sans", sans-serif; color: #ff0607; }
+.sc-ta { display: block; width: 100%; height: 62px; margin-top: 24px; padding: 6px 12px; border: 1px solid #908e8a; border-radius: 3px; background: #fff; font: 400 16px/24px "Nunito Sans", sans-serif; color: #495057; resize: vertical; }
+.sc-ta:focus { outline: none; border-color: #d14a61; box-shadow: 0 0 0 .2rem rgba(209, 74, 97, .15); }
+.sc-ta[hidden], .sc-err[hidden], .sc-opts[hidden] { display: none; }
+.sc-notes { display: grid; gap: 8px; margin-top: 37px; }
+.sc-note { margin: 0; display: flex; gap: 8px; font: 400 14px/21px "Albert Sans", sans-serif; color: #5e5e5e; }
+.sc-note span:first-child { color: #d14a61; flex: none; }
+.sc-ft { display: flex; gap: 8px; margin-top: 14px; }
+.sc-btn { flex: 1; height: 48px; padding: 4px 20px; border: 1px solid transparent; border-radius: 52px; font: 600 14px/21px "Albert Sans", sans-serif; cursor: pointer; }
+.sc-btn--no { background: #f6dbdf; color: #b82e45; }
+.sc-btn--yes { background: #d14a61; color: #fff; }
+.sc-btn--no:hover { background: #f1cdd3; }
+.sc-btn--yes:hover { background: #c03e55; }
+
+/* Live order details: per-item "Cancel Item" and full-width "Cancel Order" pills */
+.s-btn-light { display: inline-flex; align-items: center; justify-content: center; height: 48px; padding: 4px 20px; border: 0; border-radius: 52px; background: #f8f9fa; color: #000; font: 600 14px/21px "Albert Sans", sans-serif; cursor: pointer; }
+.s-btn-light:hover { background: #eef0f2; }
+.s-prod__ft:has(.s-btn-light) { flex-wrap: nowrap; gap: 20px; }
+.s-prod__ft .s-btn-light { flex: 252 1 0; min-width: 0; }
+.s-prod__ft .s-btn-light + .s-btn-soft { flex: 242 1 0; min-width: 0; }
+.s-cancel-order { display: block; width: 100%; margin-top: -2px; height: 48px; border: 0; border-radius: 52px; background: #fff; color: #000; font: 600 14px/21px "Albert Sans", sans-serif; cursor: pointer; }
+.s-cancel-order:hover { background: #fdfdfd; box-shadow: 0 0 0 1px #eee inset; }
+.s-cancelled { display: inline-flex; align-items: center; height: 28px; padding: 2px 12px; border-radius: 300px; background: #8d8d8d; color: #fff; font: 700 13px/21px "Albert Sans", sans-serif; }
+
+/* Toast and veil (replica of .email-success-updated and $.spinner) */
+.sc-toast { position: fixed; top: 121px; left: 50%; transform: translateX(-50%); z-index: 1100; display: flex; align-items: center; gap: 0; max-width: calc(100vw - 32px); min-height: 56px; padding: 16px 32px 16px 30px; border-radius: 30px; background: #04ad61; color: #fff; font: 600 16px/24px "Albert Sans", sans-serif; box-shadow: 0 8px 24px rgba(0,0,0,.12); animation: toast-in .25s var(--ease-out); }
+.sc-toast__ic { width: 20px; flex: none; font-size: 13px; font-weight: 900; }
+.sc-toast.error .sc-toast__ic { color: #cc0000; font-size: 18px; }
+.sc-toast__t { padding: 0 24px; }
+.sc-toast__x { background: none; border: 0; color: #fff; font: 700 22px/1 "Albert Sans", sans-serif; cursor: pointer; padding: 0; }
+.sc-veil { position: fixed; inset: 0; z-index: 1200; background: rgba(255, 255, 255, .55); display: grid; place-items: center; }
+.sc-spin { width: 44px; height: 44px; border: 4px solid #f6dbdf; border-top-color: #d14a61; border-radius: 50%; animation: spin .8s linear infinite; }
+
+@media (max-width: 991px) {
+  .sc-ov { align-items: flex-end; padding: 72px 8px 8px; }
+  .sc-dialog { width: 100%; max-width: 500px; margin: auto auto 0; transform: translateY(40px); }
+  .sc-close { top: -64px; right: 21px; }
+  .sc-close__d { display: none !important; }
+  .sc-close__m { display: block !important; }
+  .sc-title { margin-top: 12px; }
+  .sc-sure { margin: 28px 0 16px; }
+  .sc-opts { width: 100%; max-width: none; }
+  .sc-toast { top: 76px; }
+}
