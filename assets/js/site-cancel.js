@@ -37,7 +37,7 @@
       if (wal && wal.amount) notes.push(`${rs(wal.amount)} paid from your Mia Wallet will go back to your wallet as a new credit.`);
       if (q.cashback) notes.push(q.cashback.effect === "VOIDED" ? `The ${rs(q.cashback.current)} cashback on hold for this ${mode === "item" && o.items.length === 1 ? "order" : mode} will be cancelled.` : `This order’s cashback on hold will change from ${rs(q.cashback.current)} to ${rs(q.cashback.afterReturn)}.`);
     }
-    notes.push("You will loose the earned NeuCoins");
+    notes.push("NeuCoins used on this order will be refunded to your Tata Neu account.");
 
     const ov = document.createElement("div");
     ov.className = "sc-ov";
