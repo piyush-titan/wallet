@@ -66,25 +66,49 @@
 
   function cashbackCard(c, ctx) {
     if (!ctx.eligible) return "";
-    const w = c.wallet || M.chromeWallet();
-    const walletRow = w.available > 0
-      ? `<div class="p-cb__wallet"><img src="${IMG}ic-wallet.svg" alt=""><span><b>${rs(w.available)}</b> in your Mia Wallet. Use up to ${M.config.redemptionPercent}% of this product’s price at checkout.</span><a href="wallet.html">View</a></div>`
-      : w.onHold > 0
-        ? `<div class="p-cb__wallet"><img src="${IMG}ic-wallet.svg" alt=""><span><b>${rs(w.onHold)}</b> cashback on hold in your Mia Wallet. Claim it to use it on this product.</span><a href="wallet.html">View</a></div>`
-        : "";
-    // Wallet money can't be used on coins or on products carrying an offer.
-    const walletUsable = !c.reason;
     if (c.loading)
       return `<div class="p-cb" aria-busy="true"><div class="p-cb__row"><div class="skel" style="width:36px;height:36px;border-radius:50%"></div><div style="flex:1"><div class="skel" style="height:13px;width:62%"></div><div class="skel" style="height:10px;width:85%;margin-top:6px"></div></div></div></div>`;
-    if (!c.estimate) {
-      if (!walletRow || !walletUsable) return c.reason ? `<div class="p-cb"><div class="p-cb__no">${icon("info", 16)}<span>${c.reason === "coin" ? "Coins don’t earn cashback, and Mia Wallet can’t be used on them." : "This product has an offer on making charges, so it doesn’t earn cashback and Mia Wallet can’t be used on it."}</span></div></div>` : "";
-      return `<div class="p-cb">${walletRow.replace("p-cb__wallet", "p-cb__wallet\" style=\"border-top:0")}</div>`;
-    }
+    if (c.reason)
+      return `<div class="p-cb"><div class="p-cb__no">${icon("info", 16)}<span>${c.reason === "coin" ? "Coins don’t earn cashback, and Mia Wallet can’t be used on them." : "This product has an offer on making charges, so it doesn’t earn cashback and Mia Wallet can’t be used on it."}</span></div></div>`;
+    if (!c.estimate) return "";
     return `<div class="p-cb" aria-label="Cashback">
       <div class="p-cb__row"><span class="p-cb__ic"><img src="${IMG}ic-cashback.svg" alt=""></span>
         <div><div class="p-cb__t">Earn up to <b>${rs(c.estimate)}</b> cashback</div><div class="p-cb__s">Added to your Mia Wallet after the return window</div></div>
-        <button class="p-cb__link" data-how>How it works</button></div>
-      ${walletRow}</div>`;
+        <button class="p-cb__link" data-how>How it works</button></div></div>`;
+  }
+
+  // Mock of the backend wallet quote for one unit: the most wallet credit usable on this product and the price after it.
+  // The UI only displays these figures; in production they come from the API.
+  const walletQuote = (price, credit) => {
+    const use = Math.min(credit, Math.floor((price * M.config.redemptionPercent) / 100));
+    return { use, pay: price - use };
+  };
+
+  // "Pay less with your wallet" block, shown just above the coupons.
+  function walletOffer(c, ctx) {
+    if (!ctx.eligible || c.reason) return "";
+    const w = c.wallet || M.chromeWallet();
+    const price = c.p.sale || c.p.price;
+    if (w.available > 0) {
+      const q = walletQuote(price, w.available);
+      const capped = q.use < w.available;
+      return `<section class="p-wo" aria-label="Pay with Mia Wallet">
+        <div class="p-wo__hd"><img src="${IMG}ic-wallet.svg" alt=""><span>Your Mia Wallet price</span></div>
+        <div class="p-wo__price"><b class="num">${fmt(q.pay)}</b><s>${fmt(price)}</s><span class="p-wo__save">Save ${rs(q.use)}</span></div>
+        <p class="p-wo__s">Use <b>${rs(q.use)}</b> ${capped ? `of your ${rs(w.available)} wallet credit` : "wallet credit"} on this ring and pay just <b>${fmt(q.pay)}</b>. Apply it in your bag at checkout.</p>
+        <p class="p-wo__fine">${capped ? `Wallet credit covers up to ${M.config.redemptionPercent}% of the price. ` : ""}Cashback is earned on the amount you pay.</p>
+      </section>`;
+    }
+    if (w.onHold > 0) {
+      const q = walletQuote(price, w.onHold);
+      return `<section class="p-wo hold" aria-label="Pay with Mia Wallet">
+        <div class="p-wo__hd"><img src="${IMG}ic-wallet.svg" alt=""><span>Pay less with your cashback on hold</span></div>
+        <div class="p-wo__price"><b class="num">${fmt(q.pay)}</b><s>${fmt(price)}</s><span class="p-wo__save">Save ${rs(q.use)}</span></div>
+        <p class="p-wo__s">You have <b>${rs(w.onHold)}</b> cashback on hold. Claim it from your orders to pay as little as <b>${fmt(q.pay)}</b> for this ring.</p>
+        <a class="p-wo__cta" href="wallet.html">View cashback on hold</a>
+      </section>`;
+    }
+    return "";
   }
 
   M.page({
@@ -92,12 +116,12 @@
     layout: "raw",
     crumbs: null,
     scenarios: [
-      { id: "diamond", group: "Earns cashback", label: "Diamond ring (as on stg)", desc: "Replica of the live PDP for Arch Sparkle Diamond Ring (₹23,168): price breakup, Choose Size / Gross Weight chips, sticky bar with size pill. New: ‘Earn up to ₹1,158 cashback’ under the price, the customer’s Mia Wallet balance, and a cashback chip in the sticky bar. Amount comes from GET /cashback/estimate (one unit) and is always ‘up to’." },
-      { id: "walletZero", group: "Wallet balance", label: "₹0 wallet, nothing on hold", desc: "Cashback line only; no wallet row." },
-      { id: "holdOnly", group: "Wallet balance", label: "₹0 available, ₹1,910 on hold", desc: "Wallet row nudges the customer to claim cashback on hold so they can use it on this ring." },
+      { id: "diamond", group: "Earns cashback", label: "Diamond ring (as on stg)", desc: "Replica of the live PDP for Arch Sparkle Diamond Ring (₹23,168): price breakup, Choose Size / Gross Weight chips, sticky bar with size pill. New: ‘Earn up to ₹1,158 cashback’ under the price, a ‘Your Mia Wallet price’ block above the coupons (₹21,608 after ₹1,560 wallet credit), and a cashback chip in the sticky bar. Amount comes from GET /cashback/estimate (one unit) and is always ‘up to’." },
+      { id: "walletZero", group: "Wallet balance", label: "₹0 wallet, nothing on hold", desc: "Cashback line only; no wallet price block." },
+      { id: "holdOnly", group: "Wallet balance", label: "₹0 available, ₹1,910 on hold", desc: "Wallet block shows the price they could pay if they claim their cashback on hold, with a link to it." },
       { id: "offerMC", group: "No cashback", label: "Ring with 30% off on making charges", desc: "Festive making-charge offer (Oracle discount): price shows the strike-through and the discount in the breakup. Discounted products never earn and can’t use the wallet, so a short explanation replaces the cashback line and there’s no chip." },
       { id: "coin", group: "No cashback", label: "Gold coin", desc: "Coins never earn and can’t use the wallet." },
-      { id: "zero", group: "No cashback", label: "Estimate is ₹0", desc: "API returns 0: cashback line hidden, wallet row still shown." },
+      { id: "zero", group: "No cashback", label: "Estimate is ₹0", desc: "API returns 0: cashback line hidden, wallet price block still shown." },
       { id: "loading", group: "System", label: "Estimate loading", desc: "Small skeleton, never ‘₹0’." },
     ],
     customerNote: (ctx) => (ctx.cust === "guest" || ctx.cust === "usd" ? "Not eligible: no cashback line, wallet row or sticky-bar chip." : ""),
@@ -131,6 +155,7 @@
               ${breakup(p)}
               ${cashbackCard(c, ctx)}
               ${variations(p)}
+              ${walletOffer(c, ctx)}
               <div class="p-coupons__hd"><span><img src="${IMG}pdp-offer.svg" alt=""></span><b>Available coupons</b></div>
               <div class="p-coupons__stage">
                 <button class="p-arrow l" aria-label="Previous coupon">${icon("chevronRight", 12, 'style="transform:rotate(180deg)"')}</button>

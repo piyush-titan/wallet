@@ -627,3 +627,17 @@ body.site.has-pdp-bar .dev { bottom: 96px; }
 .p-sticky__var i { width: 1px; height: 10px; background: rgba(255, 255, 255, .5); }
 .p-price .v s { -webkit-text-fill-color: #999; }
 @media (max-width: 860px) { .p-sticky__var { display: none; } }
+
+/* "Your Mia Wallet price" block on the PDP, just above the coupons */
+.p-wo { margin-top: 18px; border-radius: 14px; border: 1px solid #f4ced5; background: linear-gradient(135deg, #fff 0%, #fff6f8 100%); padding: 14px 16px; box-shadow: 0 2px 8px rgba(209, 74, 97, .06); }
+.p-wo__hd { display: flex; align-items: center; gap: 8px; font: 800 10px/15px "Albert Sans", sans-serif; letter-spacing: 1.2px; text-transform: uppercase; color: #b83e53; }
+.p-wo__hd img { width: 24px; height: 24px; }
+.p-wo__price { display: flex; align-items: baseline; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.p-wo__price b { font: 700 22px/28px Fraunces, serif; color: #1a1a1a; }
+.p-wo__price s { font: 400 13px "Albert Sans", sans-serif; color: #999; }
+.p-wo__save { display: inline-flex; align-items: center; height: 22px; padding: 0 10px; border-radius: 20px; background: #e8f8ee; color: #16803c; font: 700 11px "Albert Sans", sans-serif; }
+.p-wo__s { margin: 6px 0 0; font: 400 12px/18px "Albert Sans", sans-serif; color: #43323a; }
+.p-wo__s b { font-weight: 700; }
+.p-wo__fine { margin: 6px 0 0; font: 400 11px/16px "Albert Sans", sans-serif; color: #8a7a80; }
+.p-wo__cta { display: inline-block; margin-top: 8px; font: 700 12px "Albert Sans", sans-serif; color: #b83e53; text-decoration: underline; }
+.p-wo.hold .p-wo__price b { color: #6d565e; }
