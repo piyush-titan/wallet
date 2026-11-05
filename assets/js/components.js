@@ -329,6 +329,7 @@
   // cw: { guest, loading, serviceDown, available, holdOrders[], limit, maxByPercent, absoluteCap, usedThisMonth, monthlyLimit, resetsOn, blockers[], ineligibleItems[], applied, notice }
   M.walletSection = (cw, { page = "cart", hidden = false } = {}) => {
     if (hidden) return "";
+    const where = page === "checkout" ? "this order" : "this bag";
     const wic = `<img class="wic" src="assets/img/ic-wallet.svg" alt="">`;
     const row = (title, sub, action = "", extra = "", cls = "") =>
       `<section class="s-row ${cls}" aria-label="Mia Wallet" data-wallet-section>${wic}<div class="s-row__m"><div class="s-row__t">${title}</div>${sub ? `<div class="s-row__s">${sub}</div>` : ""}</div>${action}</section>${extra ? `<div class="s-wsx">${extra}</div>` : ""}`;
@@ -343,7 +344,7 @@
     const notice = cw.notice ? `<div class="note note--warn" role="status">${icon("info")}<span>${esc(cw.notice)}</span><button class="x" aria-label="Dismiss" data-ws="dismiss">${icon("x", 16)}</button></div>` : "";
     const claimedList = cw.justClaimed || [];
     const done = claimedList.length && !cw.applied
-      ? `<div class="note note--pos" role="status">${icon("checkCircle")}<span><b>${rs(M.holdSum(claimedList))}</b> claimed from order${claimedList.length > 1 ? "s" : ""} ${claimedList.map((x) => "#" + esc(x.orderNo)).join(", ")} is now available. Tap Redeem to use it on this bag.</span></div>`
+      ? `<div class="note note--pos" role="status">${icon("checkCircle")}<span><b>${rs(M.holdSum(claimedList))}</b> claimed from order${claimedList.length > 1 ? "s" : ""} ${claimedList.map((x) => "#" + esc(x.orderNo)).join(", ")} is now available. Tap Redeem to use it on ${where}.</span></div>`
       : "";
     const nInel = (cw.ineligibleItems || []).length;
     const mixed = nInel ? `<div class="row small" style="gap:8px;color:var(--s-grey)">${icon("info", 16)}<span>${M.t("bm.wallet.section.someIneligible", { n: M.plural(nInel, "item", "items") })}</span><button class="s-link small" data-ws="why" data-reason="MIXED">See why</button></div>` : "";
@@ -354,12 +355,12 @@
         M.t("bm.wallet.section.applied", { amount: `<span class="num">${rs(cw.applied)}</span>` }),
         M.t("bm.wallet.section.left", { amount: rs(cw.available - cw.applied) }) + (holdTotal ? ` · ${rs(holdTotal)} on hold` : ""),
         `<button class="s-btn-line" data-ws="edit">${M.t("bm.wallet.section.edit")}</button><button class="s-btn-line" data-ws="remove">${M.t("bm.wallet.section.remove")}</button>`,
-        mixed + (holdTotal ? M.holdStrip(holds, { context: " on this bag" }) : "") + notice
+        mixed + (holdTotal ? M.holdStrip(holds, { context: " on " + where }) : "") + notice
       );
     if (cw.available === 0 && holdTotal > 0)
       return row(
         `<span class="num">${rs(holdTotal)}</span> cashback on hold`,
-        `From ${M.plural(holds.length, "order", "orders")}. ${can ? "Claim it to use it on this bag, or wait till the return window closes." : "You can use it once the return window closes."}`,
+        `From ${M.plural(holds.length, "order", "orders")}. ${can ? `Claim it to use it on ${where}, or wait till the return window closes.` : "You can use it once the return window closes."}`,
         `<button class="${can ? "s-pill-rose" : "s-btn-line"}" data-ws="claim">${can ? "Claim cashback" : "See orders"}</button>`,
         can ? `<div class="xs" style="color:var(--s-grey)">Claiming closes returns for that order.</div>` + notice : notice
       );
@@ -371,7 +372,7 @@
       return row("Mia Wallet", sub, "", `<div class="note note--info">${icon("clock")}<span>${M.t("bm.wallet.section.monthly", { limit: cw.monthlyLimit, resetsOn: date(cw.resetsOn, true) })}</span></div>`);
     if (b.includes("NO_ELIGIBLE_ITEMS"))
       return row("Mia Wallet", sub, "", `<div class="note note--info">${icon("info")}<span>${M.t("bm.wallet.section.noEligible")}</span><button class="s-link small" style="margin-left:auto" data-ws="why" data-reason="NO_ELIGIBLE">Why?</button></div>`);
-    return row(M.t("bm.wallet.section.title"), sub, `<button class="s-pill-rose" data-ws="redeem">${M.t("bm.wallet.section.redeem")}</button>`, done + mixed + M.holdStrip(holds, { context: " on this bag" }) + notice);
+    return row(M.t("bm.wallet.section.title"), sub, `<button class="s-pill-rose" data-ws="redeem">${M.t("bm.wallet.section.redeem")}</button>`, done + mixed + M.holdStrip(holds, { context: " on " + where }) + notice);
   };
 
   /* ---------- Wallet info sheet (BM-configurable per reason) ---------- */
@@ -411,7 +412,7 @@
       return `<h2 id="rd-title">${M.t("bm.wallet.modal.title")}</h2>
         <div class="row-between" style="margin-top:14px;padding:14px 16px;background:var(--canvas);border-radius:14px">
           <div><div class="xs muted">Available</div><div class="strong num" data-avail>${rs(cw.available)}</div></div>
-          <div style="text-align:right"><div class="xs muted">Usable on this bag</div><div class="strong num" style="color:var(--rose)" data-limit>${rs(limit)}</div></div>
+          <div style="text-align:right"><div class="xs muted">Usable on ${opts.page === "checkout" ? "this order" : "this bag"}</div><div class="strong num" style="color:var(--rose)" data-limit>${rs(limit)}</div></div>
         </div>
         <label for="rd-amt" class="small strong" style="display:block;margin:18px 0 8px">Amount to use</label>
         <div class="amount-field" data-field><span aria-hidden="true">₹</span><input id="rd-amt" type="text" inputmode="numeric" autocomplete="off" maxlength="7" placeholder="0" aria-describedby="rd-help rd-err" autofocus></div>

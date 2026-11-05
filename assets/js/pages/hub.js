@@ -8,7 +8,7 @@
     ["return.html", "undo", "Return flow", "P0", "Item selection, live refund summary with cashback effect, whole-order lock, closed windows, requested screen.", 12],
     ["order-details.html?s=cancelOrder", "ban", "Cancel order / item", "P0", "Replica of the live Cancel Order and Cancel Item modals, with notes on wallet money and cashback, validation, success and error toasts.", 5],
     ["cart.html", "bag", "Cart", "P0", "Wallet section (all 10 states), redeem modal (17 states), info sheet, benefit tags, coupon conflict, auto-removal.", 16],
-    ["checkout.html", "card", "Checkout", "P0", "Wallet hold responses, international / undeliverable address, gift card and Tata Neu, ₹0 payable, payment failed.", 13],
+    ["checkout.html", "card", "Checkout", "P0", "Replica of the live Order Details step. Mia Wallet in Redeem Points & Gift Cards, hold responses, address removal, gift card + NeuCoins, out of stock, payment failed.", 13],
     ["confirmation.html", "checkCircle", "Order confirmation", "P0", "Cashback-on-hold banner and the wallet line; no banner when nothing is earned.", 5],
     ["pdp.html", "ring", "Product page", "P2", "‘Earn up to’ cashback line and when it’s hidden.", 6],
   ];

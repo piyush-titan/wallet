@@ -353,7 +353,7 @@
         } else {
           main = `${cr}<div class="wrap" style="max-width:1290px;padding:24px 16px 96px"><main id="main">${body}</main></div>`;
         }
-        app.innerHTML = header(ctx) + main + devPill(def, ctx);
+        app.innerHTML = (def.chrome === false ? "" : header(ctx)) + main + devPill(def, ctx);
         wireChrome(ctx);
         wireDev(def, ctx);
         const desc = app.querySelector("[data-dev-desc]");
