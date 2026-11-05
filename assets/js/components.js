@@ -153,7 +153,7 @@
         cls = "paused"; ico = "pause";
         title = M.t("res.cashback.block.paused");
         body = `${amt} is paused. Your return is in progress. We’ll update this order’s cashback once it’s complete.`;
-        actions = `<a class="link" href="return.html?s=requested">Return details ${icon("arrowRight", 14)}</a>`;
+        actions = `<a class="link" href="order-details.html?s=paused">View order ${icon("arrowRight", 14)}</a>`;
         break;
       case "CREDITED":
         cls = "credited"; ico = "checkCircle";

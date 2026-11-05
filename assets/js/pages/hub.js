@@ -5,7 +5,7 @@
     ["wallet.html", "wallet", "My Wallet", "P0", "Balance, on hold (with Claim), paused for returns, transactions with View all, Expiring Balance tab, empty, loading, error.", 16],
     ["order-details.html?s=claimable", "sparkle", "Order details + Claim early", "P0", "Cashback block for every state, early-claim consent modal with every server response, wallet lines and refunds.", 18],
     ["orders.html", "box", "My Orders", "P1", "One-line cashback status per order card, with Claim now deep link.", 4],
-    ["return.html", "undo", "Return flow", "P0", "Item selection, live refund summary with cashback effect, whole-order lock, closed windows, requested screen.", 12],
+    ["order-details.html?s=returnItem", "undo", "Return flow", "P0", "Replica of the live Return Item / Return Order modal and ‘Returned Confirmed!’ popup, plus a Refund Summary (card, Mia Wallet, cashback change).", 12],
     ["order-details.html?s=cancelOrder", "ban", "Cancel order / item", "P0", "Replica of the live Cancel Order and Cancel Item modals, with notes on wallet money and cashback, validation, success and error toasts.", 5],
     ["cart.html", "bag", "Cart", "P0", "Wallet section (all 10 states), redeem modal (17 states), info sheet, benefit tags, coupon conflict, auto-removal.", 16],
     ["checkout.html", "card", "Checkout", "P0", "Replica of the live Order Details step. Mia Wallet in Redeem Points & Gift Cards, hold responses, address removal, gift card + NeuCoins, out of stock, payment failed.", 13],

@@ -30,7 +30,7 @@ Each state shows a short description, and the last `dataLayer` event appears in 
 | `wallet.html` | 6.10 | Both tabs (`#balance`, `#expiring`), on hold with Claim, paused, history + View all, empty, loading, error |
 | `order-details.html` | 6.7, 6.8 | Cashback block for every state, claim modal, wallet lines, refund lines |
 | `orders.html` | 6.6 | Cashback status line per order; Claim now opens order details with the modal |
-| `return.html` | 6.9 | Live refund summary, whole-order lock, closed windows, requested screen |
+| `return.html` | 6.9 | Redirects to the order details page, where the replica of the live Return Item / Return Order modal opens. Adds a Refund Summary (card, Mia Wallet, cashback change) and refund lines in the "Returned Confirmed!" popup |
 | `order-details.html?s=cancelOrder` | 6.9 | Replica of the live Cancel Order / Cancel Item modals (reason dropdown, validation, toasts) plus wallet and cashback notes. `cancel.html` redirects here |
 | `cart.html` | 6.3, 7 | Wallet section (10 states), redeem modal, info sheet, tags, coupon conflict, auto-removal |
 | `checkout.html` | 6.4 | Replica of the live "Order Details" checkout step. Mia Wallet is a row in "Redeem Points & Gift Cards" and a line in Payment Details. Covers address selection, hold responses, international/undeliverable address, gift card + NeuCoins, ₹0 payable, out of stock on continue, payment failed/pending |

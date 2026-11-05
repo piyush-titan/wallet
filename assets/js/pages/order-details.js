@@ -4,7 +4,7 @@
   const IMG = "assets/img/";
   const dmy = (iso) => iso.split("-").reverse().join("/");
   const sp = (n) => "₹ " + n; // site renders breakdown figures as "₹ 73827"
-  let o = null, key = "", focusClaim = false, scrolled = false, autoCancel = null;
+  let o = null, key = "", focusClaim = false, scrolled = false, autoCancel = null, autoReturn = null;
 
   const imgFor = (it) => it.img || ({ coin: "coin.jpg", silver: "silver.jpg", earring: "studs.jpg" }[it.kind] || (/pendant|necklace/i.test(it.name) ? "pendant.jpg" : "ring.jpg"));
 
@@ -44,7 +44,9 @@
       case "PAUSED":
         cls = "paused"; title = M.t("res.cashback.block.paused");
         body = `${amt} is paused. Your return is in progress. We’ll update this order’s cashback once it’s complete.`;
-        acts = `<a class="s-link" href="return.html?s=requested">Return details</a>`; break;
+        if (cb.afterReturn === 0) body = `${amt} is paused while your return is in progress. It will be cancelled once the return is complete, as nothing is left in this order.`;
+        else if (cb.afterReturn != null) body = `${amt} is paused while your return is in progress. Once it’s complete, it will be updated to ${rs(cb.afterReturn)} for the items you keep.`;
+        break;
       case "CREDITED":
         cls = "credited"; title = M.t("res.cashback.block.credited", { amount: amt });
         if (cb.claimedEarly) body = M.t("res.cashback.block.claimedNote", { date: date(cb.claimedOn) });
@@ -75,7 +77,13 @@
     if (it.kind === "coin") return `<span class="xs" style="color:var(--s-grey3);align-self:center">Coins can’t be returned</span>${rate}`;
     const end = M.returnWindowEnd(o, it);
     if (M.daysUntil(end) < 0) return `<span class="xs" style="color:var(--s-grey3);align-self:center">Return window closed on ${date(end, true)}</span>${rate}`;
-    return `<a class="s-btn-soft" href="return.html?s=${o.items.length > 1 ? "standard" : "single"}&line=${it.lineId}">Return</a>${rate}`;
+    return `<button class="s-btn-light" data-return-item="${it.lineId}">Return Item</button>${rate}`;
+  }
+
+  // Items the customer can still send back (live: "Return Item" per item, "Return Order" for all of them).
+  function returnableLines() {
+    if (o.status !== "DELIVERED" || o.cashback.claimedEarly) return [];
+    return o.items.filter((it) => it.kind !== "coin" && it.kind !== "giftcard" && ![...(o.returned || []), ...(o.returning || []), ...(o.cancelled || [])].includes(it.lineId) && M.daysUntil(M.returnWindowEnd(o, it)) >= 0).map((it) => it.lineId);
   }
 
   function productCard() {
@@ -94,7 +102,7 @@
           ${itemButtons(it) ? `<div class="s-prod__ft" style="width:100%;padding-top:14px">${itemButtons(it)}</div>` : ""}</div>`)
         .join("")}
       ${cb.claimedEarly ? `<div class="s-prod__note">${icon("lock", 18)}<span>${M.t("res.return.closedByClaim", { date: date(cb.claimedOn) })}</span></div>` : ""}
-      ${o.status === "DELIVERED" && o.wholeOrderOnly && !cb.claimedEarly ? `<div class="s-prod__note">${icon("info", 18)}<span>${M.t("res.return.wholeOrder", { offer: esc(o.offerName || "an offer") })}</span></div><div class="s-prod__ft"><a class="s-btn-soft" href="return.html?s=wholeOrder">Return whole order</a></div>` : ""}
+      ${o.status === "DELIVERED" && o.wholeOrderOnly && !cb.claimedEarly ? `<div class="s-prod__note">${icon("info", 18)}<span>${M.t("res.return.wholeOrder", { offer: esc(o.offerName || "an offer") })}</span></div>` : ""}
     </section>`;
   }
 
@@ -155,9 +163,18 @@
         { id: "WINDOW_CLOSED", label: "409 · Window closed meanwhile" },
         { id: "SUPPRESSED", label: "409 · Suppressed" },
         { id: "cancelError", label: "Cancel → server error toast" },
+        { id: "returnError", label: "Return → server error toast" },
       ],
     },
     scenarios: [
+      { id: "returnItem", group: "Return (replica of live site)", label: "Return Item · wallet + cashback", desc: "Exact copy of the live Return Item modal (reason list, ‘Others’ box, Pickup Address, Confirm return), plus a Refund Summary card: ₹6,624 to the card, ₹576 back to Mia Wallet, cashback ₹1,000 → ₹280. Confirm is enabled once a reason is picked and the refund is calculated. Success shows the live ‘Returned Confirmed!’ popup with where the refund goes; the item then shows ‘Return requested’ and the cashback card is paused." },
+      { id: "returnOrder", group: "Return (replica of live site)", label: "Return Order · whole order", desc: "Live ‘Return Order’ pill under the product card. Returning everything sends ₹800 back to Mia Wallet and cancels the ₹1,000 cashback." },
+      { id: "returnSingle", group: "Return (replica of live site)", label: "Single-item order", desc: "Return Item on the only item: cashback cancelled, wallet share returned." },
+      { id: "returnNoWallet", group: "Return (replica of live site)", label: "No wallet money used", desc: "Refund Summary shows only the card refund and the cashback change." },
+      { id: "returnNoCashback", group: "Return (replica of live site)", label: "No wallet, no cashback (like live)", desc: "Nothing wallet-related to show, so the modal is identical to the live site (no Refund Summary)." },
+      { id: "returnQuoteLoading", group: "Return (replica of live site)", label: "Refund still calculating", desc: "Refund Summary shows a skeleton and Confirm return stays disabled until it loads." },
+      { id: "returnQuoteError", group: "Return (replica of live site)", label: "Refund calculation failed", desc: "‘We couldn’t calculate your refund.’ Confirm stays disabled; Retry loads it." },
+      { id: "returnMixedWindow", group: "Return (replica of live site)", label: "One item past its window", desc: "Silver hoops past the 7-day window show ‘Return window closed on…’; Return Order only covers the ring." },
       { id: "cancelOrder", group: "Cancel (replica of live site)", label: "Cancel Order modal", desc: "Exact copy of the live Cancel Order modal. Try ‘Yes, Cancel’ with no reason (‘Please choose a reason to cancel’), then ‘My Reason is not listed’ with an empty box (‘Please add your reason’). Notes show what happens to the ₹800 wallet money and ₹1,000 cashback. On success: green toast, order becomes Cancelled, cashback voided, ₹800 back to Mia Wallet." },
       { id: "cancelItem", group: "Cancel (replica of live site)", label: "Cancel Item modal (2-item order)", desc: "Exact copy of the live Cancel Item modal with the product preview. Cancelling one item cancels its share of wallet money and updates the cashback on hold for the rest of the order." },
       { id: "cancelSingle", group: "Cancel (replica of live site)", label: "Single-item order", desc: "Cancel Item on the only item cancels the whole order." },
@@ -187,7 +204,8 @@
     render(ctx) {
       const k = ctx.s + "|" + ctx.cust;
       if (k !== key) {
-        key = k; o = M.ORDERS[{ cancelOrder: "pending", cancelItem: "pending" }[ctx.s] || ctx.s](); scrolled = false;
+        key = k; o = M.ORDERS[{ cancelOrder: "pending", cancelItem: "pending", returnItem: "claimable", returnOrder: "claimable", returnQuoteLoading: "claimable", returnQuoteError: "claimable", returnMixedWindow: "mixedClosed" }[ctx.s] || ctx.s](); scrolled = false;
+        autoReturn = { returnItem: "item", returnOrder: "order", returnSingle: "item", returnNoWallet: "item", returnNoCashback: "item", returnQuoteLoading: "item", returnQuoteError: "item" }[ctx.s] || null;
         autoCancel = ctx.q.get("cancel") || { cancelOrder: "order", cancelItem: "item", cancelSingle: "order", cancelNoWallet: "order", cancelNoCashback: "order" }[ctx.s] || null;
         focusClaim = ctx.q.get("claim") === "1";
         // A claim already made for this order in this tab (e.g. before going back to the bag) stays claimed.
@@ -205,6 +223,7 @@
             <section class="s-oid"><div class="s-oid__in"><div><div class="s-oid__id">#Order ID <i></i> ${esc(o.orderNo)}</div><div class="s-oid__date">Order Date: ${dmy(o.placedOn)}</div></div><button class="s-copy" data-copy><img src="${IMG}copy.png" alt="">Copy</button></div></section>
             ${productCard()}
             ${o.status === "PROCESSING" ? `<button class="s-cancel-order" data-cancel-order>Cancel Order</button>` : ""}
+            ${returnableLines().length ? `<button class="s-return-order" data-return-order>Return Order</button>` : ""}
             <section class="s-card s-ship"><h4>Shipping Details</h4><div class="s-ship__row"><div class="s-ship__av">t</div><div><div class="s-ship__nm">test test</div><p class="addr">Test, Bengaluru Urban, India - 560111</p><p>kkkkk@gmail.com</p><p>+91 9521005220</p></div></div></section>
           </div>
           <div class="s-od__col stack">${show ? cashbackCard(o.cashback) : ""}${breakdown(show)}${support()}</div>
@@ -260,6 +279,30 @@
           },
         });
       };
+      const openReturn = (mode, lineId) => {
+        const lines = mode === "item" ? [lineId] : returnableLines();
+        const quote = () => {
+          const q = M.mockQuote(o, lines);
+          return q.refundTo.some((r) => r.method === "WALLET") || q.cashback ? q : null;
+        };
+        M.openSiteReturn({
+          mode, order: o, lines, quote, showWallet: ctx.eligible, resp: ctx.resp,
+          quoteResp: { returnQuoteLoading: "loading", returnQuoteError: "error" }[ctx.s] || "ok",
+          onDone: () => {
+            const q = M.mockQuote(o, lines);
+            o.returning = [...(o.returning || []), ...lines];
+            if (o.cashback.state !== "NONE")
+              o.cashback = { ...o.cashback, state: "PAUSED", afterReturn: q.cashback ? q.cashback.afterReturn : null, claim: { available: false, reason: "RETURN_IN_PROGRESS" } };
+            setTimeout(ctx.rerender, 60);
+          },
+        });
+      };
+      app.querySelectorAll("[data-return-item]").forEach((b) => b.addEventListener("click", () => openReturn("item", b.dataset.returnItem)));
+      app.querySelector("[data-return-order]")?.addEventListener("click", () => openReturn("order"));
+      if (autoReturn && returnableLines().length) {
+        const mode = autoReturn; autoReturn = null;
+        setTimeout(() => openReturn(mode, returnableLines()[0]), 250);
+      }
       app.querySelector("[data-cancel-order]")?.addEventListener("click", () => openCancel("order"));
       app.querySelectorAll("[data-cancel-item]").forEach((b) => b.addEventListener("click", () => openCancel("item", b.dataset.cancelItem)));
       if (autoCancel && o.status === "PROCESSING") {

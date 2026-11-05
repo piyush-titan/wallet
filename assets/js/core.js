@@ -25,7 +25,7 @@
     { id: "wallet", file: "wallet.html", title: "My Wallet" },
     { id: "orders", file: "orders.html", title: "My Orders" },
     { id: "order", file: "order-details.html", title: "Order details + Claim" },
-    { id: "return", file: "return.html", title: "Return flow" },
+    { id: "return", file: "order-details.html?s=returnItem", title: "Return flow (order details modal)" },
     { id: "cancel", file: "order-details.html?s=cancelOrder", title: "Cancel flow (order details modal)" },
     { id: "cart", file: "cart.html", title: "Cart" },
     { id: "checkout", file: "checkout.html", title: "Checkout" },

@@ -1,0 +1,14 @@
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Group 772545305">
+<g id="Group 772545304">
+<circle id="Ellipse 310" cx="12" cy="12" r="10" fill="#F6DBDF"/>
+<circle id="Ellipse 311" cx="12" cy="12" r="6" fill="url(#paint0_linear_2110_202951)"/>
+</g>
+</g>
+<defs>
+<linearGradient id="paint0_linear_2110_202951" x1="6" y1="12" x2="18" y2="12" gradientUnits="userSpaceOnUse">
+<stop stop-color="#FF7A91"/>
+<stop offset="1" stop-color="#D62459"/>
+</linearGradient>
+</defs>
+</svg>

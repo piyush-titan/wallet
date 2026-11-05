@@ -140,7 +140,7 @@
       <div class="sec-hd"><h2 id="pz-h">Paused for returns · <span class="num">${rs(sum)}</span></h2></div>
       <p class="small muted" style="margin:4px 0 12px">We’ll update this cashback once your return is complete.</p>
       <ul class="list">${data.paused
-        .map((p) => `<li class="li"><div class="li__ico warn">${icon("pause")}</div><div class="li__main"><div class="li__title"><span class="num">${rs(p.amount)}</span> · return of order ${ORDER_LINK(p.orderNo)} in progress</div><div class="li__sub">Return ${esc(p.returnId)}</div></div><div class="li__end"><a class="link small" href="return.html?s=requested">View return</a></div></li>`)
+        .map((p) => `<li class="li"><div class="li__ico warn">${icon("pause")}</div><div class="li__main"><div class="li__title"><span class="num">${rs(p.amount)}</span> · return of order ${ORDER_LINK(p.orderNo)} in progress</div><div class="li__sub">Return ${esc(p.returnId)}</div></div><div class="li__end"><a class="link small" href="order-details.html?s=paused">View return</a></div></li>`)
         .join("")}</ul>
     </section>`;
   }
