@@ -13,6 +13,7 @@
     tx("t7", "REDEEMED", 800, "2026-10-12", "MIA1027001"),
     tx("t6", "CASHBACK_CREDITED", 60, "2026-08-03", "MIA1019920"),
     tx("t5", "EXPIRED", 120, "2026-09-30", null, "Cashback · order #MIA1011112"),
+    tx("t4b", "GOODWILL_CREDIT", 50, "2026-08-20", "MIA1021450"),
     tx("t4", "REFUND_TO_WALLET", 400, "2026-07-14", "MIA1018870"),
     tx("t3", "REDEEMED", 180, "2026-07-02", "MIA1017555"),
     tx("t2", "CASHBACK_CREDITED", 300, "2026-07-02", "MIA1011112"),
@@ -82,6 +83,7 @@
     BRAND_CREDIT: ["gift", "rose", null, () => "Gift from Mia"],
     REDEEMED: ["bag", "", "Used on an order", (t) => "Order " + ORDER_LINK(t.orderNo)],
     REFUND_TO_WALLET: ["undo", "pos", "Refunded to wallet", (t) => "Order " + ORDER_LINK(t.orderNo) + " returned"],
+    GOODWILL_CREDIT: ["gift", "pos", "Goodwill credit", (t) => "Order " + ORDER_LINK(t.orderNo) + " cancelled by Mia"],
     EXPIRED: ["clock", "mute", "Expired", (t) => esc(t.message || "")],
   };
   const txRow = (t) => {

@@ -117,6 +117,7 @@
       <div class="s-otb__r"><span>Delivery Charges</span><b>Free</b></div>
       <div class="s-otb__gt"><span>Grand Total</span><b>${sp(grand)}</b></div>
       ${showWallet && wr ? `<div class="s-otb__refund" style="background:${wr.done ? "#eefaf2" : "var(--s-canvas)"};color:${wr.done ? "#1c5c3b" : "var(--s-grey)"}">${icon(wr.done ? "undo" : "clock", 18)}<span>${wr.done ? `Returned to your Mia Wallet <b>${rs(wr.amount)}</b>${wr.expiresOn ? ` · valid till ${date(wr.expiresOn)}` : ""}` : `Refund to Mia Wallet in progress · <b>${rs(wr.amount)}</b>`}</span></div>` : ""}
+      ${showWallet && o.goodwill ? `<div class="s-otb__refund" style="background:#eefaf2;color:#1c5c3b">${icon("gift", 18)}<span>Goodwill credit <b>${rs(o.goodwill.amount)}</b> added to your Mia Wallet · valid till ${date(o.goodwill.expiresOn)}</span></div>` : ""}
     </section>
     <section class="s-card s-bill">
       <div class="s-bill__t">Billing Information</div>
@@ -196,6 +197,7 @@
       { id: "claimed", group: "Credited", label: "Claimed early · returns closed", desc: "claimedEarly = true. Return buttons hidden with the explanation." },
       { id: "voidCancelled", group: "Voided / none", label: "Cancelled · wallet refunded", desc: "VOIDED. ‘Returned to your Mia Wallet ₹800’ as a new credit." },
       { id: "voidReturned", group: "Voided / none", label: "Fully returned · refund in progress", desc: "VOIDED. Wallet refund still in progress." },
+      { id: "cancelledByMia", group: "Voided / none", label: "Cancelled by Mia · goodwill credit", desc: "Mia cancelled (out of stock). Wallet money back + ₹50 goodwill credit (setting), valid 90 days." },
       { id: "undeliverable", group: "Voided / none", label: "Undeliverable", desc: "VOIDED for an order that couldn’t be delivered." },
       { id: "none", group: "Voided / none", label: "Order earns no cashback", desc: "Discounted item + coin. No cashback card, no wallet lines." },
     ],

@@ -9,13 +9,13 @@
 
   // CONFIG values (spec section 0.6). Read from here, never hard-code in pages.
   MIA.config = {
-    redemptionPercent: 80,
-    maxRedemptionsPerMonth: 3,
+    redemptionPercent: 50,
+    maxRedemptionsPerMonth: null, // off at launch (4 Nov decision)
+    goodwillCreditAmount: 50,
     absoluteCapPerOrder: null,
     historyPreviewCount: 10,
     expiringSoonDays: 30,
     cashbackValidityDays: 90,
-    minRefundValidityDays: 15,
     silverReturnDays: 7,
     otherReturnDays: 30,
   };

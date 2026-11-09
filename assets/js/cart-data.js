@@ -32,7 +32,7 @@
       const limit = Math.min(this.available, maxByPercent, this.absoluteCap ?? Infinity);
       const blockers = [];
       if (this.coupon) blockers.push("COUPON_APPLIED");
-      if (this.usedThisMonth >= C.maxRedemptionsPerMonth) blockers.push("MONTHLY_LIMIT");
+      if (C.maxRedemptionsPerMonth && this.usedThisMonth >= C.maxRedemptionsPerMonth) blockers.push("MONTHLY_LIMIT");
       if (!this.coupon && !eligibleValue) blockers.push("NO_ELIGIBLE_ITEMS");
       const ineligibleItems = this.coupon ? [] : L.filter((l) => !this.isEligible(l)).map((l) => ({ lineId: l.lineId, name: l.name, kind: l.kind, reason: l.offer === "CUSTOM_OFFER" ? "OFFER" : l.offer === "DISCOUNT" ? "DISCOUNT" : l.kind === "coin" ? "COIN" : "GIFT_CARD" }));
       const benefit = (l) => (l.offer ? l.offer : this.coupon && l.kind !== "coin" ? "COUPON" : this.applied && this.isEligible(l) ? "WALLET" : "NONE");

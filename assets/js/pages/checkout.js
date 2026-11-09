@@ -214,7 +214,6 @@
       options: [
         { id: "ok", label: "200 · Hold OK → confirmation" },
         { id: "BALANCE_CHANGED", label: "409 · BALANCE_CHANGED" },
-        { id: "MONTHLY_LIMIT", label: "409 · MONTHLY_LIMIT" },
         { id: "SERVICE_DOWN", label: "503 · SERVICE_DOWN" },
       ],
     },
@@ -227,7 +226,6 @@
       { id: "giftAdjusted", group: "Wallet", label: "Gift card / NeuCoins adjusted", desc: "The wallet amount lowered what’s payable below what the gift card covered, so the extra was released with a notice." },
       { id: "zeroPayable", group: "Wallet", label: "Grand Total ₹0 · Place Order", desc: "Fully paid by wallet and gift card; the footer button reads ‘Place Order’." },
       { id: "coupon", group: "Wallet", label: "Coupon applied (wallet blocked)", desc: "Wallet and coupons can’t be combined. ‘Remove coupon’ unlocks Redeem." },
-      { id: "monthly", group: "Wallet", label: "Monthly limit reached", desc: "3 of 3 redemptions used this month." },
       { id: "intl", group: "Removal", label: "International address", desc: "Wallet row hidden; the applied amount is removed with a notice. ‘Change Address’ and pick Bengaluru to bring it back (not re-applied)." },
       { id: "unserviceable", group: "Removal", label: "Address can’t be delivered to", desc: "Pincode not serviceable: amount removed, button disabled until another address is chosen." },
       { id: "autoOos", group: "Removal", label: "Item out of stock on Continue", desc: "Replica of the live ‘Items are out of stock’ modal, which appears when you press Continue to payment. The wallet amount is removed and returned." },

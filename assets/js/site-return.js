@@ -57,7 +57,7 @@
     const cb = q.cashback;
     return `<div class="sr-ref" aria-live="polite"><p class="sr-ref__t">Refund Summary</p>
         ${card && card.amount ? `<div class="sr-ref__r"><i class="dot" aria-hidden="true"></i><b>To ${esc(card.label)}</b><b class="v num">${rs(card.amount)}</b><small>5 to 7 working days after pickup</small></div>` : ""}
-        ${wal ? `<div class="sr-ref__r"><img src="${IMG}ic-wallet.svg" alt=""><b>To Mia Wallet</b><b class="v num w">${rs(wal.amount)}</b><small>Added back after pickup as a new credit, valid ${M.config.cashbackValidityDays} days</small></div>` : ""}
+        ${wal ? `<div class="sr-ref__r"><img src="${IMG}ic-wallet.svg" alt=""><b>To Mia Wallet</b><b class="v num w">${rs(wal.amount)}</b><small>Added back after pickup as a new credit, with the days it had left when you used it</small></div>` : ""}
         ${cb ? `<div class="sr-ref__r sr-ref__cb"><img src="${IMG}ic-cashback.svg" alt=""><b>Cashback on hold</b><b class="v num"><s>${rs(cb.current)}</s> ${cb.effect === "VOIDED" ? "₹0" : rs(cb.afterReturn)}</b><small>${cb.effect === "VOIDED" ? "Cancelled, as nothing is left in this order" : "Recalculated on the items you keep"}. Paused until the return is complete.</small></div>` : ""}
         <p class="sr-ref__f">You get back the full amount you paid. NeuCoins used on this order are refunded to your Tata Neu account.</p>
       </div>`;
