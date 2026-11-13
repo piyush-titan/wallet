@@ -45,7 +45,7 @@
         cls = "paused"; title = M.t("res.cashback.block.paused");
         body = `${amt} is paused. Your return is in progress. We’ll update this order’s cashback once it’s complete.`;
         if (cb.afterReturn === 0) body = `${amt} is paused while your return is in progress. It will be cancelled once the return is complete, as nothing is left in this order.`;
-        else if (cb.afterReturn != null) body = `${amt} is paused while your return is in progress. Once it’s complete, it will be updated to ${rs(cb.afterReturn)} for the items you keep.`;
+        else if (cb.afterReturn != null) body = `${amt} is paused while your return is in progress. Once it’s complete, it will be updated to ${rs(cb.afterReturn)}, as the returned item’s share is removed.`;
         break;
       case "CREDITED":
         cls = "credited"; title = M.t("res.cashback.block.credited", { amount: amt });
@@ -74,7 +74,7 @@
     if (o.status !== "DELIVERED") return "";
     const rate = `<button class="s-btn-soft">Rate and Review</button>`;
     if (cb.claimedEarly || o.wholeOrderOnly) return rate;
-    if (it.kind === "coin") return `<span class="xs" style="color:var(--s-grey3);align-self:center">Coins can’t be returned</span>${rate}`;
+    if (it.kind === "coin") return `<span class="xs" style="color:var(--s-grey3);align-self:center">This item can’t be returned</span>${rate}`;
     const end = M.returnWindowEnd(o, it);
     if (M.daysUntil(end) < 0) return `<span class="xs" style="color:var(--s-grey3);align-self:center">Return window closed on ${date(end, true)}</span>${rate}`;
     return `<button class="s-btn-light" data-return-item="${it.lineId}">Return Item</button>${rate}`;
@@ -116,8 +116,7 @@
       ${showWallet && o.walletUsed ? `<div class="s-otb__r"><span style="display:flex;gap:8px;align-items:center"><img src="${IMG}ic-wallet.svg" alt="" style="width:22px">Wallet Applied</span><b class="rose">- ${sp(o.walletUsed)}</b></div>` : ""}
       <div class="s-otb__r"><span>Delivery Charges</span><b>Free</b></div>
       <div class="s-otb__gt"><span>Grand Total</span><b>${sp(grand)}</b></div>
-      ${showWallet && wr ? `<div class="s-otb__refund" style="background:${wr.done ? "#eefaf2" : "var(--s-canvas)"};color:${wr.done ? "#1c5c3b" : "var(--s-grey)"}">${icon(wr.done ? "undo" : "clock", 18)}<span>${wr.done ? `Returned to your Mia Wallet <b>${rs(wr.amount)}</b>${wr.expiresOn ? ` · valid till ${date(wr.expiresOn)}` : ""}` : `Refund to Mia Wallet in progress · <b>${rs(wr.amount)}</b>`}</span></div>` : ""}
-      ${showWallet && o.goodwill ? `<div class="s-otb__refund" style="background:#eefaf2;color:#1c5c3b">${icon("gift", 18)}<span>Goodwill credit <b>${rs(o.goodwill.amount)}</b> added to your Mia Wallet · valid till ${date(o.goodwill.expiresOn)}</span></div>` : ""}
+      ${showWallet && wr ? `<div class="s-otb__refund" style="background:${wr.done ? "#eefaf2" : "var(--s-canvas)"};color:${wr.done ? "#1c5c3b" : "var(--s-grey)"}">${icon(wr.done ? "undo" : "clock", 18)}<span>${wr.done ? "Your refund goes back to the payment methods you used. Mia Wallet money goes back to your Mia Wallet." : "Refund starts after quality check. It goes back to the payment methods you used, and Mia Wallet money goes back to your wallet."}</span></div>` : ""}
     </section>
     <section class="s-card s-bill">
       <div class="s-bill__t">Billing Information</div>
@@ -195,9 +194,8 @@
       { id: "paused", group: "Return outcomes", label: "Return in progress", desc: "PAUSED. Claim hidden. Item shows ‘Return requested’." },
       { id: "credited", group: "Credited", label: "Credited automatically", desc: "Window closed with no return." },
       { id: "claimed", group: "Credited", label: "Claimed early · returns closed", desc: "claimedEarly = true. Return buttons hidden with the explanation." },
-      { id: "voidCancelled", group: "Voided / none", label: "Cancelled · wallet refunded", desc: "VOIDED. ‘Returned to your Mia Wallet ₹800’ as a new credit." },
+      { id: "voidCancelled", group: "Voided / none", label: "Cancelled · wallet refunded", desc: "VOIDED. General refund line; the wallet money shows in My Wallet history." },
       { id: "voidReturned", group: "Voided / none", label: "Fully returned · refund in progress", desc: "VOIDED. Wallet refund still in progress." },
-      { id: "cancelledByMia", group: "Voided / none", label: "Cancelled by Mia · goodwill credit", desc: "Mia cancelled (out of stock). Wallet money back + ₹50 goodwill credit (setting), valid 90 days." },
       { id: "undeliverable", group: "Voided / none", label: "Undeliverable", desc: "VOIDED for an order that couldn’t be delivered." },
       { id: "none", group: "Voided / none", label: "Order earns no cashback", desc: "Discounted item + coin. No cashback card, no wallet lines." },
     ],

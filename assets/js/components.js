@@ -495,32 +495,4 @@
     });
     return m;
   };
-
-  /* ---------- Refund summary (6.9, manual approach) ---------- */
-  // q: { itemValue, refundTo:[{method,label,amount}], cashback:{current, afterReturn, effect} | null }
-  M.refundSummary = (q, { title = "Refund summary", loading = false, error = false } = {}) => {
-    if (loading)
-      return `<section class="rs" aria-busy="true"><div class="rs__hd"><h3>${title}</h3></div><div class="rs__bd"><div class="kv"><div class="skel" style="height:14px;width:40%"></div><div class="skel" style="height:14px;width:20%"></div></div><div class="kv"><div class="skel" style="height:14px;width:55%"></div><div class="skel" style="height:14px;width:24%"></div></div></div><div class="rs__cb"><div class="skel" style="height:14px;width:70%"></div></div></section>`;
-    if (error)
-      return `<section class="rs"><div class="rs__hd"><h3>${title}</h3></div><div class="rs__bd" style="padding:16px 20px"><div class="note note--err" role="alert">${icon("alert")}<span>${M.t("res.return.quoteError")}</span><button class="link" style="margin-left:auto" data-retry>${icon("refresh", 14)} Retry</button></div></div></section>`;
-    const meth = { CARD: "card", UPI: "card", NETBANKING: "card", BANK_TRANSFER: "card", WALLET: "wallet" };
-    const cb = q.cashback;
-    const effect = cb
-      ? cb.effect === "VOIDED"
-        ? `<span class="rs__flow"><s>${rs(cb.current)}</s>${icon("arrowRight", 14)}${rs(0)}</span> <span class="badge badge--mute" style="height:22px">Cancelled</span>`
-        : cb.effect === "RECALCULATED"
-          ? `<span class="rs__flow"><s>${rs(cb.current)}</s>${icon("arrowRight", 14)}${rs(cb.afterReturn)}</span> <span class="badge badge--neutral" style="height:22px">Updated</span>`
-          : `<span class="rs__flow">${rs(cb.current)}</span> <span class="badge badge--neutral" style="height:22px">No change</span>`
-      : "";
-    return `<section class="rs" aria-live="polite">
-      <div class="rs__hd"><h3>${title}</h3><span class="xs muted">Full refund</span></div>
-      <div class="rs__bd">
-        <div class="kv"><span class="k">Item value</span><span class="v">${rs(q.itemValue)}</span></div>
-        ${q.refundTo
-          .map((d) => `<div class="kv"><span class="k row" style="gap:8px">${icon(meth[d.method] || "card", 16)}You’ll receive <span class="muted">to your ${esc(d.label)}</span></span><span class="v strong">${rs(d.amount)}</span></div>`)
-          .join("")}
-      </div>
-      ${cb ? `<div class="rs__cb"><div class="row-between" style="flex-wrap:wrap"><span>Cashback for this order</span><span class="row" style="gap:8px">${effect}</span></div><div class="row xs" style="gap:6px;color:var(--pos)">${icon("shield", 14)}${M.t("res.return.summary.notAffected")}</div></div>` : ""}
-    </section>`;
-  };
 })();

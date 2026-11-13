@@ -34,7 +34,7 @@
     const notes = [];
     if (showWallet && q) {
       const wal = q.refundTo.find((r) => r.method === "WALLET");
-      if (wal && wal.amount) notes.push(`${rs(wal.amount)} paid from your Mia Wallet will go back to your wallet as a new credit.`);
+      if (wal && wal.amount) notes.push("Your refund goes back to the payment methods you used. Money paid from your Mia Wallet goes back to your Mia Wallet.");
       if (q.cashback) notes.push(q.cashback.effect === "VOIDED" ? `The ${rs(q.cashback.current)} cashback on hold for this ${mode === "item" && o.items.length === 1 ? "order" : mode} will be cancelled.` : `This order’s cashback on hold will change from ${rs(q.cashback.current)} to ${rs(q.cashback.afterReturn)}.`);
     }
     notes.push("NeuCoins used on this order will be refunded to your Tata Neu account.");

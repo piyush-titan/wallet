@@ -11,7 +11,6 @@
   MIA.config = {
     redemptionPercent: 50,
     maxRedemptionsPerMonth: null, // off at launch (4 Nov decision)
-    goodwillCreditAmount: 50,
     absoluteCapPerOrder: null,
     historyPreviewCount: 10,
     expiringSoonDays: 30,

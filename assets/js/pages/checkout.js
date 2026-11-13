@@ -189,9 +189,9 @@
   function openAfterPay(kind, ctx) {
     const applied = cart.applied || released;
     const V = {
-      failed: ["Payment failed", "Your payment didn’t go through. No money was taken.", applied ? `<b>Your wallet amount is safe.</b> ${rs(applied)} is still applied to this order. Retry to use it.` : "", "Retry payment"],
+      failed: ["Payment failed", "Your payment didn’t go through. No money was taken.", applied ? `<b>Your wallet amount is safe.</b> ${rs(applied)} is back in your Mia Wallet. Apply it again before you retry.` : "", "Retry payment"],
       failedReapply: ["Payment failed", "Your payment didn’t go through. No money was taken.", applied ? `<b>Your wallet amount is safe.</b> ${rs(applied)} is back in your Mia Wallet. Apply it again before you retry.` : "", "Back to checkout"],
-      payPending: ["Payment pending", "We’re waiting for your bank to confirm. This can take up to 30 minutes.", applied ? `Your ${rs(applied)} wallet amount stays held for this order until the payment is confirmed.` : "", "Go to My Orders"],
+      payPending: ["Payment pending", "We’re waiting for your bank to confirm. This can take up to 30 minutes.", applied ? `Your ${rs(applied)} wallet amount is used for this order while we confirm your payment. If the payment fails, it goes back to your Mia Wallet.` : "", "Go to My Orders"],
       notCreated: ["We couldn’t place your order", "Something went wrong after your payment. Any amount taken will be refunded in 5 to 7 working days.", applied ? `The ${rs(applied)} Mia Wallet amount you used is back in your wallet.` : "", "Back To Bag"],
     }[kind];
     const o = overlay(`<h4>${V[0]}</h4><p class="co-oos__t">${V[1]}</p>${ctx.eligible && V[2] ? `<div class="co-oos__w"><img src="${IMG}ic-wallet.svg" alt=""><span>${V[2]}</span></div>` : ""}<button class="co-oos__b" type="button" data-ap>${V[3]}</button>`, { cls: "co-oos", lock: true, label: V[0] });
@@ -230,9 +230,8 @@
       { id: "unserviceable", group: "Removal", label: "Address can’t be delivered to", desc: "Pincode not serviceable: amount removed, button disabled until another address is chosen." },
       { id: "autoOos", group: "Removal", label: "Item out of stock on Continue", desc: "Replica of the live ‘Items are out of stock’ modal, which appears when you press Continue to payment. The wallet amount is removed and returned." },
       { id: "down", group: "Removal", label: "Wallet service down", desc: "Unavailable message; the rest of checkout works." },
-      { id: "failed", group: "After payment", label: "Payment failed · amount kept", desc: "Returning from the gateway after a failure. Wallet amount stays applied." },
-      { id: "failedReapply", group: "After payment", label: "Payment failed · re-apply", desc: "Hold was released, so the customer applies it again." },
-      { id: "payPending", group: "After payment", label: "Payment pending", desc: "Wallet amount stays held until the bank confirms." },
+      { id: "failedReapply", group: "After payment", label: "Payment failed", desc: "Wallet money was taken (Redeem) and is given back at once (Cancel Redeem). The customer applies it again." },
+      { id: "payPending", group: "After payment", label: "Payment pending", desc: "Wallet money stays used for the order until the bank confirms. If the payment fails, it goes back." },
       { id: "notCreated", group: "After payment", label: "Order not created", desc: "Payment taken but order failed: wallet amount returned." },
     ],
     customerNote: (ctx) => (ctx.cust === "intl" ? "International address selected: wallet row hidden and any applied amount removed." : ctx.cust === "usd" ? "USD: no wallet UI." : ctx.cust === "guest" ? "Guest: the wallet row asks the customer to log in." : ""),

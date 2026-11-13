@@ -48,17 +48,17 @@
   /* Refund Summary card (new). q comes from the mock quote server; the UI never computes money. */
   function refundCard(state, q, o) {
     if (state === "loading")
-      return `<div class="sr-ref" aria-busy="true" aria-label="Calculating your refund"><p class="sr-ref__t">Refund Summary</p>
+      return `<div class="sr-ref" aria-busy="true" aria-label="Loading your return details"><p class="sr-ref__t">Refund Summary</p>
           ${[70, 55, 62].map((w) => `<div class="sr-ref__r"><i class="dot" aria-hidden="true"></i><div class="skel" style="height:14px;width:${w}%"></div><div class="skel v" style="height:14px;width:60px"></div></div>`).join("")}</div>`;
     if (state === "error")
-      return `<div class="sr-ref"><p class="sr-ref__t">Refund Summary</p><div class="sr-ref__err" role="alert"><img src="${IMG}rt-info.svg" alt=""><span>We couldn’t calculate your refund. Please try again.</span><button type="button" class="sr-link" data-retry>Retry</button></div></div>`;
+      return `<div class="sr-ref"><p class="sr-ref__t">Refund Summary</p><div class="sr-ref__err" role="alert"><img src="${IMG}rt-info.svg" alt=""><span>We couldn’t load your return details. Please try again.</span><button type="button" class="sr-link" data-retry>Retry</button></div></div>`;
     const card = q.refundTo.find((r) => r.method === "CARD");
     const wal = q.refundTo.find((r) => r.method === "WALLET");
     const cb = q.cashback;
     return `<div class="sr-ref" aria-live="polite"><p class="sr-ref__t">Refund Summary</p>
-        ${card && card.amount ? `<div class="sr-ref__r"><i class="dot" aria-hidden="true"></i><b>To ${esc(card.label)}</b><b class="v num">${rs(card.amount)}</b><small>5 to 7 working days after pickup</small></div>` : ""}
-        ${wal ? `<div class="sr-ref__r"><img src="${IMG}ic-wallet.svg" alt=""><b>To Mia Wallet</b><b class="v num w">${rs(wal.amount)}</b><small>Added back after pickup as a new credit, with the days it had left when you used it</small></div>` : ""}
-        ${cb ? `<div class="sr-ref__r sr-ref__cb"><img src="${IMG}ic-cashback.svg" alt=""><b>Cashback on hold</b><b class="v num"><s>${rs(cb.current)}</s> ${cb.effect === "VOIDED" ? "₹0" : rs(cb.afterReturn)}</b><small>${cb.effect === "VOIDED" ? "Cancelled, as nothing is left in this order" : "Recalculated on the items you keep"}. Paused until the return is complete.</small></div>` : ""}
+        <div class="sr-ref__r"><i class="dot" aria-hidden="true"></i><b>Your refund goes back to the payment methods you used for this order.</b><small>Refund starts after we pick up your item and it passes quality check.</small></div>
+        ${wal ? `<div class="sr-ref__r"><img src="${IMG}ic-wallet.svg" alt=""><b>Money paid from your Mia Wallet goes back to your Mia Wallet.</b><small>It comes back with the days it had left when you used it.</small></div>` : ""}
+        ${cb ? `<div class="sr-ref__r sr-ref__cb"><img src="${IMG}ic-cashback.svg" alt=""><b>Cashback on hold</b><b class="v num"><s>${rs(cb.current)}</s> ${cb.effect === "VOIDED" ? "₹0" : rs(cb.afterReturn)}</b><small>${cb.effect === "VOIDED" ? "Cancelled, as nothing is left in this order" : "The returned item’s share is removed"}. Paused until the return is complete.</small></div>` : ""}
         <p class="sr-ref__f">You get back the full amount you paid. NeuCoins used on this order are refunded to your Tata Neu account.</p>
       </div>`;
   }
@@ -173,8 +173,7 @@
     const cb = q && q.cashback;
     const rows = [];
     if (showWallet && q) {
-      if (card && card.amount) rows.push(`<li><span>${rs(card.amount)} to ${esc(card.label)}</span><small>5 to 7 working days after pickup</small></li>`);
-      if (wal) rows.push(`<li class="w"><img src="${IMG}ic-wallet.svg" alt=""><span>${rs(wal.amount)} back to Mia Wallet</span><small>After pickup</small></li>`);
+      rows.push(`<li${wal ? ' class="w"' : ""}>${wal ? `<img src="${IMG}ic-wallet.svg" alt="">` : ""}<span>Refund to your payment methods${wal ? " and Mia Wallet" : ""}</span><small>Starts after quality check</small></li>`);
       if (cb) rows.push(`<li class="c"><img src="${IMG}ic-cashback.svg" alt=""><span>Cashback ${cb.effect === "VOIDED" ? `of ${rs(cb.current)} will be cancelled` : `paused, then updated to ${rs(cb.afterReturn)}`}</span><small>Once the return is complete</small></li>`);
     }
     const { ov, close } = overlay("sr-ok", `
